@@ -28,7 +28,7 @@ class AI1 {
     // ADDED
     double defaultHScore[][] = new double[8][8];
     double moveValue[][] = new double[8][8]; // the number of tokens that will be gained by the move. 0 if invalid
-    final int MAX_DEPTH = 3;
+    final int MAX_DEPTH = 0;
 
     public AI1(int _me, String host) {
         me = _me;
@@ -63,6 +63,14 @@ class AI1 {
     public void buildChildNodes(RNode parent, int depth) {
         int[] currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
         Map<Integer, Double> currMoveScores = calcMoveScores(parent, currValidMoves);
+        
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            int move = entry.getKey();
+            double score = entry.getValue();
+            int row = move / 8;
+            int col = move % 8;
+            System.out.println("(" + row + "," + col + ") :" + score);
+        }
 
         for (int i = 0; i < currValidMoves.length; i++) {
             int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
@@ -168,22 +176,25 @@ class AI1 {
     public Map<Integer, Double> calcMoveScores(RNode parent, int[] validMoves) {
         Map<Integer, Double> moveScores = new HashMap<Integer, Double>();
 
-        // TODO
-        // for (int move : validMoves) { // calculate what the scores are
-        //     // call check direction special, and take center row move the value there
-        //     int score = 0;
-        //     for () {
-        //         for {
-        //             if (i == 0 && j == 0) {
-        //                 continue;
-        //             }
-        //             // do all of moves
-        //             score += getDirectionSpecial(moveScores);
-        //         }
-        //     }
+        for (int move : validMoves) { 
+            int score = 0;
+            int row = move / 8;
+            int col = move % 8;
+
+            int incx, incy;
+            for (incx = -1; incx < 2; incx++) {
+                for (incy = -1; incy < 2; incy++) {
+                    if ((incx == 0) && (incy == 0))
+                        continue;
+
+                    // get each score
+                    score += getDirectionSpecial(moveScores);
+                }
+            }
             
-        //     moveScores.put(move, score);
-        // }
+            moveScores.put(move, score);
+        }
+
         return moveScores;
     }
 
