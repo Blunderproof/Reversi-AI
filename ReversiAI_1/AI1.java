@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.awt.event.*;
 import java.lang.*;
 import java.io.*;
@@ -22,7 +23,6 @@ class AI1 {
     int turn = -1;
     int round;
 
-    int validMoves[] = new int[64];
     int numValidMoves;
 
     // ADDED
@@ -35,8 +35,6 @@ class AI1 {
 
         initHScores(1.0, .4, -.5, .1);
 
-        int myMove;
-
         while (true) {
             System.out.println("Read");
             readMessage();
@@ -45,32 +43,34 @@ class AI1 {
                 System.out.println("Move");
 
                 RNode parent = new RNode(null, 0, state, 0.0, me, -1);
-                buildChildNodes(parent, 0);
+                buildChildNodes(parent);
 
                 // minimax and alpha beta happen in here
-                myMove = getBestMoveUsingMinMax(parent);
+                int chosenMove = getBestMoveUsingMinMax(parent);
 
-                String sel = validMoves[myMove] / 8 + "\n" + validMoves[myMove] % 8;
+                String sel = chosenMove / 8 + "\n" + chosenMove % 8;
 
-                System.out.println("Selection: " + validMoves[myMove] / 8 + ", " + validMoves[myMove] % 8);
+                System.out.println("Selection: " + chosenMove / 8 + ", " + chosenMove % 8);
 
                 sout.println(sel);
             }
         }
     }
 
-    public void buildChildNodes(RNode parent, int depth) {
-        int[] currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
+    public void buildChildNodes(RNode parent) {
+        List<Integer> currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
 
         System.out.println("Possible Moves");
-        for (int i = 0; i < currValidMoves.length; i++) {
-            parent.addChild( buildChildNodeFromMove(parent, state, validMoves[i]) );
+        for (int move : currValidMoves) {
+            parent.addChild( buildChildNodeFromMove(parent, state, move) );
         }
+        System.out.println("End Possible Moves");
 
-        if (depth <= MAX_DEPTH) {
+        System.out.println("Parent depth: " + parent.getDepth());
+        if (parent.getDepth() <= MAX_DEPTH) {
             // build another layer of children
             for (RNode child : parent.getChildren()) {
-                buildChildNodes(child, child.getDepth());
+                buildChildNodes(child);
             }
         }
 
@@ -95,7 +95,7 @@ class AI1 {
         // add the current location
         moveScore += defaultHScore[row][col];
         
-        System.out.println("(" + row + "," + col + ") :" + moveScore);
+        System.out.println("(" + row + "," + col + "): " + moveScore);
 
         int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(childPlayer);
@@ -205,6 +205,7 @@ class AI1 {
             }
         }
 
+        System.out.println("Best move: " + bestMove);
         return bestMove;
     }
 
@@ -248,33 +249,28 @@ class AI1 {
         return node.getNetScore();
     }
 
-    private int[] getCurrValidMoves(int round, int[][] pState, int player) {
-        int cValidMoves[] = new int[64];
-        int cNumValidMoves = 0;
+    private List<Integer> getCurrValidMoves(int round, int[][] pState, int player) {
+        List<Integer> cValidMoves = new ArrayList<Integer>();
         player = me;
         int i, j;
 
         // Game Start
         if (round < 4) {
             if (pState[3][3] == 0) {
-                cValidMoves[cNumValidMoves] = 3 * 8 + 3;
-                cNumValidMoves++;
+                cValidMoves.add(3 * 8 + 3);
             }
             if (pState[3][4] == 0) {
-                cValidMoves[cNumValidMoves] = 3 * 8 + 4;
-                cNumValidMoves++;
+                cValidMoves.add( 3 * 8 + 4);
             }
             if (pState[4][3] == 0) {
-                cValidMoves[cNumValidMoves] = 4 * 8 + 3;
-                cNumValidMoves++;
+                cValidMoves.add(4 * 8 + 3);
             }
             if (pState[4][4] == 0) {
-                cValidMoves[cNumValidMoves] = 4 * 8 + 4;
-                cNumValidMoves++;
+                cValidMoves.add(4 * 8 + 4);
             }
             System.out.println("Valid Moves:");
-            for (i = 0; i < cNumValidMoves; i++) {
-                System.out.println(cValidMoves[i] / 8 + ", " + cValidMoves[i] % 8);
+            for (int move : cValidMoves) {
+                System.out.println(move / 8 + ", " + move % 8);
             }
         } else {
             System.out.println("Valid Moves:");
@@ -282,8 +278,7 @@ class AI1 {
                 for (j = 0; j < 8; j++) {
                     if (pState[i][j] == 0) {
                         if (couldBe(pState, i, j)) {
-                            cValidMoves[cNumValidMoves] = i * 8 + j;
-                            cNumValidMoves++;
+                            cValidMoves.add(i * 8 + j);
                             System.out.println(i + ", " + j);
                         }
                     }
