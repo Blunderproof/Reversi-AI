@@ -7,7 +7,6 @@ import java.net.*;
 import javax.swing.*;
 import java.math.*;
 import java.text.*;
-import RNode;
 
 class AI1 {
 
@@ -45,9 +44,8 @@ class AI1 {
             
             if (turn == me) {
                 System.out.println("Move");
-                //getValidMoves(round, state, me);
 
-                RNode parent = new RNode(null, 0, state, 0.0, me);
+                RNode parent = new RNode(null, 0, state, 0.0, me, -1);
                 buildChildNodes(parent, 0);
 
                 // minimax and alpha beta happen in here
@@ -66,11 +64,11 @@ class AI1 {
         int currValidMoves[] = new int[64];
 
         currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
-        Map<Integer, Double> currMoveScores = calcMoveScores(parent, currValidMoves); //must be a mapping
+        Map<Integer, Double> currMoveScores = calcMoveScores(parent, currValidMoves);
         
         for (int i = 0; i < currValidMoves.length; i++) {
             int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
-            double childScore = parent.getNetScore() + currMoveScores[parent.getMove()] * addOrSubtractForPlayer(childPlayer);
+            double childScore = parent.getNetScore() + currMoveScore.get(parent.getMove()) * addOrSubtractForPlayer(childPlayer);
             parent.addChild(
                 new RNode(parent, depth + 1, applyMoveToState(validMoves[i], state), childScore, childPlayer)
             );
@@ -173,15 +171,15 @@ class AI1 {
     public Map<Integer, Double> calcMoveScores(RNode parent, int validMoves[]){
         Map<Integer, Double> moveScores = new HashMap<Integer, Double>();
 
-        for(int validMove: validMoves){ //calculate what the scores are
-// call check direction specailial, and take centrow cmovehe value there
+        for(int move: validMoves){ //calculate what the scores are
+            // call check direction special, and take center row move the value there
             getDirectionSpecial(moveScores);
-            moveScores[move] += currentLocationWorth
+            moveScores[move] += currentLocationWorth; // <--- what?
         }
         return moveScores;
     }
 
-    private void getDirectionSpecial(moveScores) {
+    private void getDirectionSpecial(Map<Integer, Double>moveScores) { // <--- what?
         if (parent.getState()) {
             moveScores[row+','+col] += newScore;
         } else {
@@ -277,7 +275,7 @@ class AI1 {
         return node.getNetScore();
     }
 
-    private int getCurrValidMoves(int round, int[][] pState, int player) {
+    private int getCurrValidMoves(int round, int [][]pState, int player) {
         int cValidMoves[] = new int[64];
         int cNumValidMoves = 0;
         player = me;

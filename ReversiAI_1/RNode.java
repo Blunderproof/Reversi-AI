@@ -1,7 +1,7 @@
 import java.util.LinkedList;
 
 public class RNode {
-    private List<RNode> children = new LinkedList<>();
+    private List<RNode> children = new List<>();
     
     private RNode parent;
     private int depth;
@@ -11,19 +11,19 @@ public class RNode {
     private int move;
 
     public RNode(RNode parent, int depth, int[][] state, double netScore, int player, int move) {
-        self.parent = parent;
-        self.depth = depth;
-        self.state = state;
-        self.netScore = netScore;
-        self.player = player;
-        self.move = move;
+        this.parent = parent;
+        this.depth = depth;
+        this.state = state;
+        this.netScore = netScore;
+        this.player = player;
+        this.move = move;
     }
 
     public void addChild(RNode child){
         children.add(child);
     }
 
-    public List<RNode> getChildren(){
+    public LinkedList<RNode> getChildren(){
         return children;
     }
 
