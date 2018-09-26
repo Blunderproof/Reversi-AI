@@ -27,7 +27,7 @@ class AI1 {
 
     // ADDED
     double defaultHScore[][] = new double[8][8];
-    final int MAX_DEPTH = 0;
+    final int MAX_DEPTH = 3;
 
     public AI1(int _me, String host) {
         me = _me;
@@ -50,7 +50,7 @@ class AI1 {
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
 
-                System.out.println("Selection: " + chosenMove / 8 + ", " + chosenMove % 8);
+                System.out.println("Selection: " + moveToString(chosenMove) + "\n\n");
 
                 sout.println(sel);
             }
@@ -60,13 +60,11 @@ class AI1 {
     public void buildChildNodes(RNode parent) {
         List<Integer> currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
 
-        System.out.println("Possible Moves");
+        System.out.println("\n\nPossible Moves");
         for (int move : currValidMoves) {
             parent.addChild( buildChildNodeFromMove(parent, state, move) );
         }
-        System.out.println("End Possible Moves");
 
-        System.out.println("Parent depth: " + parent.getDepth());
         if (parent.getDepth() <= MAX_DEPTH) {
             // build another layer of children
             for (RNode child : parent.getChildren()) {
@@ -82,7 +80,7 @@ class AI1 {
         int col = move % 8;
 
         int incx, incy;
-        int moveScore = 0;
+        double moveScore = 0;
         for (incx = -1; incx < 2; incx++) {
             for (incy = -1; incy < 2; incy++) {
                 if ((incx == 0) && (incy == 0))
@@ -95,7 +93,7 @@ class AI1 {
         // add the current location
         moveScore += defaultHScore[row][col];
         
-        System.out.println("(" + row + "," + col + "): " + moveScore);
+        System.out.println( moveToString(move) + ": " + moveScore );
 
         int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(childPlayer);
@@ -205,7 +203,6 @@ class AI1 {
             }
         }
 
-        System.out.println("Best move: " + bestMove);
         return bestMove;
     }
 
@@ -270,7 +267,7 @@ class AI1 {
             }
             System.out.println("Valid Moves:");
             for (int move : cValidMoves) {
-                System.out.println(move / 8 + ", " + move % 8);
+                System.out.println( moveToString(move) );
             }
         } else {
             System.out.println("Valid Moves:");
@@ -279,7 +276,7 @@ class AI1 {
                     if (pState[i][j] == 0) {
                         if (couldBe(pState, i, j)) {
                             cValidMoves.add(i * 8 + j);
-                            System.out.println(i + ", " + j);
+                            System.out.println( moveToString(i, j) );
                         }
                     }
                 }
@@ -441,6 +438,14 @@ class AI1 {
 
     private boolean isMaxNode(int player) {
         return player == me;
+    }
+
+    private static String moveToString(int move) {
+        return ( (char)('a' + move / 8) ) + ", " + (move % 8 + 1);
+    }
+
+    private static String moveToString(int row, int col) {
+        return ( (char)('a' + row) ) + ", " + (col + 1);
     }
 
     public static void main(String args[]) {
