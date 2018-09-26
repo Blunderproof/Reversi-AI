@@ -27,7 +27,6 @@ class AI1 {
 
     // ADDED
     double defaultHScore[][] = new double[8][8];
-    double moveValue[][] = new double[8][8]; // the number of tokens that will be gained by the move. 0 if invalid
     final int MAX_DEPTH = 0;
 
     public AI1(int _me, String host) {
@@ -62,7 +61,6 @@ class AI1 {
 
     public void buildChildNodes(RNode parent, int depth) {
         int[] currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
-        Map<Integer, Double> currMoveScores = calcMoveScores(parent, currValidMoves);
         
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             int move = entry.getKey();
@@ -73,11 +71,7 @@ class AI1 {
         }
 
         for (int i = 0; i < currValidMoves.length; i++) {
-            int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
-            double childScore = parent.getNetScore() + currMoveScore.get(parent.getMove()) * addOrSubtractForPlayer(childPlayer);
-            parent.addChild(
-                new RNode(parent, depth + 1, applyMoveToState(validMoves[i], state), childScore, childPlayer)
-            );
+            parent.addChild( buildChildNodeFromMove(parent, state, validMoves[i]) );
         }
 
         if (depth <= MAX_DEPTH) {
@@ -89,27 +83,31 @@ class AI1 {
 
     }
 
-    public int[][] applyMoveToState(int move, int[][] currState) {
-        int[][] newState = currState.clone();
+    public RNode buildChildNodeFromMove(RNode parent, int[][] state, int move) {
+        int[][] childState = currState.clone();
         int row = move / 8;
         int col = move % 8;
 
         int incx, incy;
+        int moveScore = 0;
         for (incx = -1; incx < 2; incx++) {
             for (incy = -1; incy < 2; incy++) {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
                 // updated multiple times as the update can be from 1+ directions
-                newState = updateState(newState, row, col, incx, incy, turn); 
+                moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, turn); 
             }
         }
+        // add the current location
+        moveScore += defaultHScore[row][col];
 
-        return newState;
+        int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
+        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(childPlayer);
+        return new RNode(parent, depth + 1, childState, childScore, childPlayer);
     }
 
-    public int[][] updateState(int[][] currState, int row, int col, int incx, int incy, int turn) {
-        int newState[][] = currState;
+    public double updateStateAndCalculateScore(int[][] currState, int row, int col, int incx, int incy, int turn) {
         int sequence[] = new int[7];
         int seqLen;
         int i, r, c;
@@ -127,6 +125,7 @@ class AI1 {
         }
 
         int count = 0;
+        double score = 0;
         for (i = 0; i < seqLen; i++) {
             if (turn == 0) {
                 if (sequence[i] == 2)
@@ -152,8 +151,10 @@ class AI1 {
                 i = 1;
                 r = row + incy * i;
                 c = col + incx * i;
-                while (newState[r][c] == 2) {
-                    newState[r][c] = 1;
+                while (currState[r][c] == 2) {
+                    currState[r][c] = 1;
+                    // 2 * because we gain and other loses
+                    score += 2 * defaultHScore[r][c];
                     i++;
                     r = row + incy * i;
                     c = col + incx * i;
@@ -162,48 +163,17 @@ class AI1 {
                 i = 1;
                 r = row + incy * i;
                 c = col + incx * i;
-                while (newState[r][c] == 1) {
-                    newState[r][c] = 2;
+                while (currState[r][c] == 1) {
+                    currState[r][c] = 2;
+                    // 2 * because we gain and other loses
+                    score += 2 * defaultHScore[r][c];
                     i++;
                     r = row + incy * i;
                     c = col + incx * i;
                 }
             }
         }
-        return newState;
-    }
-
-    public Map<Integer, Double> calcMoveScores(RNode parent, int[] validMoves) {
-        Map<Integer, Double> moveScores = new HashMap<Integer, Double>();
-
-        for (int move : validMoves) { 
-            int score = 0;
-            int row = move / 8;
-            int col = move % 8;
-
-            int incx, incy;
-            for (incx = -1; incx < 2; incx++) {
-                for (incy = -1; incy < 2; incy++) {
-                    if ((incx == 0) && (incy == 0))
-                        continue;
-
-                    // get each score
-                    score += getDirectionSpecial(moveScores);
-                }
-            }
-            
-            moveScores.put(move, score);
-        }
-
-        return moveScores;
-    }
-
-    private void getDirectionSpecial(Map<Integer, Double> moveScores) { // <--- what?
-        if (moveScores.get(move) != null) {
-            moveScores.put(move, moveScores.get(move) + newScore);
-        } else {
-            moveScores.put(move, newScore);
-        }
+        return score; 
     }
 
     // create hScores

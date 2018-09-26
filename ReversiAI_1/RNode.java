@@ -1,7 +1,7 @@
 import java.util.LinkedList;
 
 public class RNode {
-    private List<RNode> children = new List<>();
+    private List<RNode> children = new ArrayList<>();
     
     private RNode parent;
     private int depth;
@@ -23,7 +23,7 @@ public class RNode {
         children.add(child);
     }
 
-    public LinkedList<RNode> getChildren(){
+    public List<RNode> getChildren(){
         return children;
     }
 
