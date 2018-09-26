@@ -61,15 +61,8 @@ class AI1 {
 
     public void buildChildNodes(RNode parent, int depth) {
         int[] currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
-        
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            int move = entry.getKey();
-            double score = entry.getValue();
-            int row = move / 8;
-            int col = move % 8;
-            System.out.println("(" + row + "," + col + ") :" + score);
-        }
 
+        System.out.println("Possible Moves");
         for (int i = 0; i < currValidMoves.length; i++) {
             parent.addChild( buildChildNodeFromMove(parent, state, validMoves[i]) );
         }
@@ -84,7 +77,7 @@ class AI1 {
     }
 
     public RNode buildChildNodeFromMove(RNode parent, int[][] state, int move) {
-        int[][] childState = currState.clone();
+        int[][] childState = state.clone();
         int row = move / 8;
         int col = move % 8;
 
@@ -101,10 +94,12 @@ class AI1 {
         }
         // add the current location
         moveScore += defaultHScore[row][col];
+        
+        System.out.println("(" + row + "," + col + ") :" + moveScore);
 
         int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(childPlayer);
-        return new RNode(parent, depth + 1, childState, childScore, childPlayer);
+        return new RNode(parent, parent.getDepth() + 1, childState, childScore, childPlayer, move);
     }
 
     public double updateStateAndCalculateScore(int[][] currState, int row, int col, int incx, int incy, int turn) {
@@ -201,7 +196,7 @@ class AI1 {
         int bestMove = parent.getChildren().get(0).getMove();
         double bestScore = getScoreOfBestChild(parent.getChildren().get(0), Double.MIN_VALUE);
 
-        for (int i = 1; i < parent.getChildren().length; i++) {
+        for (int i = 1; i < parent.getChildren().size(); i++) {
             double currentScore = getScoreOfBestChild(parent.getChildren().get(i), bestScore);
             // at top level, we know this is going to be max
             if (currentScore > bestScore) {
@@ -213,7 +208,7 @@ class AI1 {
         return bestMove;
     }
 
-    private int getScoreOfBestChild(RNode node, double bestScoreSoFar) {
+    private double getScoreOfBestChild(RNode node, double bestScoreSoFar) {
         // base case
         if (node.getDepth() == MAX_DEPTH + 1) {
             return evaluateNode(node);
@@ -225,7 +220,7 @@ class AI1 {
             return bestScore;
         }
 
-        for (int i = 1; i < node.getChildren().length; i++) {
+        for (int i = 1; i < node.getChildren().size(); i++) {
             double currentScore = getScoreOfBestChild(node.getChildren().get(i), bestScore);
             // at top level, we know this is going to be max
             if (isScoreBetterThanBest(node.getPlayer(), currentScore, bestScore)) {
@@ -242,25 +237,18 @@ class AI1 {
     }
 
     private boolean isScoreBetterThanBest(int player, double currentScore, double bestScoreSoFar) {
-        if (isMaxNode(node.getPlayer())) {
-            if (currentScore > bestScoreSoFar) {
-                // prune
-                return true;
-            }
+        if (isMaxNode(player)) {
+            return currentScore > bestScoreSoFar;
         } else {
-            if (currentScore < bestScoreSoFar) {
-                // prune
-                return true;
-            }
+            return currentScore < bestScoreSoFar;
         }
-        return false;
     }
 
     private double evaluateNode(RNode node) {
         return node.getNetScore();
     }
 
-    private int getCurrValidMoves(int round, int[][] pState, int player) {
+    private int[] getCurrValidMoves(int round, int[][] pState, int player) {
         int cValidMoves[] = new int[64];
         int cNumValidMoves = 0;
         player = me;
