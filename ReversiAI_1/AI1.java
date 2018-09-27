@@ -38,7 +38,7 @@ class AI1 {
         // don't delete this comment - has excellent params
         // initHScores(10.0, 2.5, -0.25, 0.50);
         // corner, precorner, edge, one-in, normal
-        initHScores(10, -4, 2.5, -1, .5);
+        initHScores(10, -4, 2.5, -0.3, .75);
 
         while (true) {
             System.out.println("Read");
@@ -100,7 +100,7 @@ class AI1 {
         }
         int safe = countSafePositions(childState, parent.getPlayer());
         double safeWeight = 0.8;
-        moveScore += (double)safe * safeWeight; 
+        moveScore += (double) (safe - parent.getSafeCount()) * safeWeight; 
 
         childState[row][col] = parent.getPlayer();
         // add the current location
