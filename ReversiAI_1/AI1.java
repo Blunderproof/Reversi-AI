@@ -97,7 +97,10 @@ class AI1 {
                 moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
-        System.out.println("Safe positions: " + countSafePositions(childState, parent.getPlayer()) + "\n");
+        int safe = countSafePositions(childState, parent.getPlayer());
+        if(safe > 0){
+            System.out.println("Safe positions: " + safe);
+        }
         
         childState[row][col] = parent.getPlayer();
         // add the current location
@@ -203,7 +206,6 @@ class AI1 {
                 y++;
                 if (y >= 8) break;
             }
-
             for(x = 0; x < 8; x++){ // north-west
                 y = 0;
                 while(x >= 0){
@@ -215,7 +217,7 @@ class AI1 {
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 }
             }
-            for(y = 0; y < 8; y++){
+            for(; y < 8; y++){
                 x = 0;
                 while(y >= 0){
                     if(currState[x][y] != turn){
@@ -242,6 +244,7 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y++;
+                if (y >= 8) break;
             }
             for(x = 7; x >= 0; x--){ // north-east
                 y = 0;
@@ -254,7 +257,7 @@ class AI1 {
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 }
             }
-            for(y = 0; y < 8; y++){ // south-west
+            for(; y < 8; y++){ // south-west
                 x = 7;
                 while(y >= 0){
                     if(currState[x][y] != turn){
@@ -272,6 +275,8 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x++;
+                if (x >= 8) break;
+
             }
             x = 0;
             y = 7;
@@ -309,6 +314,7 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x--;
+                if (x < 0) break;
             }
             x = 7;
             y = 7;
