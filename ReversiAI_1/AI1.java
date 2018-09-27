@@ -98,10 +98,9 @@ class AI1 {
             }
         }
         int safe = countSafePositions(childState, parent.getPlayer());
-        if(safe > 0){
-            System.out.println("Safe positions: " + safe);
-        }
-        
+        double safeWeight = 0.3;
+        moveScore += (double)safe * safeWeight; 
+
         childState[row][col] = parent.getPlayer();
         // add the current location
         moveScore += defaultHScore[row][col];
