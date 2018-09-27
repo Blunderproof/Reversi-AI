@@ -42,6 +42,12 @@ class AI1 {
         me = _me;
         initClient(host);
 
+        state[3][3] = 2;
+        state[3][4] = 2;
+        state[4][3] = 1;
+        state[4][4] = 1;
+
+        round = 4;
         initHScores();
 
         while (true) {
@@ -55,7 +61,8 @@ class AI1 {
                 if (round < 4) {
                     // randomize
                     List<Integer> moves = getCurrValidMoves(round, state, me);
-                    chosenMove = moves.get( (int)(Math.random() * moves.size()) );
+                    // chosenMove = moves.get( (int)(Math.random() * moves.size()) );
+                    chosenMove = moves.get( (int)(moves.size() - 1) );
                 } else {
                     RNode parent = new RNode(null, 0, 0.0, me, -1, 0);
                     buildChildNodes(parent, state);
@@ -104,6 +111,17 @@ class AI1 {
         }
         int safe = countSafePositions(childState, parent.getPlayer());
         double safeWeight = 0.8;
+
+        PieceCount count = PieceCount.countPiecesFromState(childState);
+
+        if (count.getMyCountForPlayer(parent.getPlayer()) == 0) {
+            System.out.println("AVOID THIS MOVE");
+            moveScore -= 10000; // * (parent.getDepth() / MAX_DEPTH);
+        } 
+        if (count.getOpponentCountForPlayer(parent.getPlayer()) < 5) {
+            System.out.println("SEIZE THIS MOVE");
+            moveScore += 30; // * (parent.getDepth() / MAX_DEPTH);
+        }
         moveScore += (double) (safe - parent.getSafeCount()) * safeWeight; 
 
         childState[row][col] = parent.getPlayer();
