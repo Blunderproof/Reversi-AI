@@ -37,7 +37,8 @@ class AI1 {
 
         // don't delete this comment - has excellent params
         // initHScores(10.0, 2.5, -0.25, 0.50);
-        initHScores(10, -.8, 2.5, -.5, .5);
+        // corner, precorner, edge, one-in, normal
+        initHScores(10, -4, 2.5, -1, .5);
 
         while (true) {
             System.out.println("Read");
@@ -98,7 +99,7 @@ class AI1 {
             }
         }
         int safe = countSafePositions(childState, parent.getPlayer());
-        double safeWeight = 0.3;
+        double safeWeight = 0.8;
         moveScore += (double)safe * safeWeight; 
 
         childState[row][col] = parent.getPlayer();
@@ -108,7 +109,9 @@ class AI1 {
         debugPrintln( moveToString(move) + ": " + moveScore );
         printState(childState);
 
-        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
+        //double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
+        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()) * ((MAX_DEPTH - parent.getDepth())/MAX_DEPTH);
+
         RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move);
 
         if (newChildNode.getDepth() < MAX_DEPTH) {
