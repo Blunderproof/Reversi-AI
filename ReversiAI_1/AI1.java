@@ -35,7 +35,7 @@ class AI1 {
         me = _me;
         initClient(host);
 
-        initHScores(1.0, .4, -.5, .1);
+        initHScores(10.0, 2.5, -0.25, 0.50);
 
         while (true) {
             System.out.println("Read");
@@ -187,7 +187,7 @@ class AI1 {
             for (int j = 0; j < 8; j++) {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
                     defaultHScore[i][j] = edgeScore;
-                } else if ((i == 1 || i == 6) && (j > 0 && j < 7) || (j == 1 || j == 6) && (i > 0 && i < 7)) { // oneIn
+                } else if ( (i == 1 || i == 6) && (j > 0 && j < 3 || j > 4 && j < 7) || (j == 1 || j == 6) && (i > 0 && i < 3 || i > 4 && i < 7)) { // oneIn
                     defaultHScore[i][j] = oneInScore;
                 } else {
                     defaultHScore[i][j] = normalScore;
@@ -199,6 +199,7 @@ class AI1 {
         defaultHScore[0][7] = cornerScore;
         defaultHScore[7][0] = cornerScore;
         defaultHScore[7][7] = cornerScore;
+        printSquareValues(defaultHScore);
     }
 
     private int getBestMoveUsingMinMax(RNode parent) {
@@ -484,6 +485,15 @@ class AI1 {
                 debugPrint(currState[row][col]);
             }
             debugPrintln();
+        }
+    }
+
+    private static void printSquareValues(double[][] scores) {
+        for (int row = 7; row >= 0; row--) {
+            for (int col = 0; col < 8; col++) {
+                System.out.print(scores[row][col] + " ");
+            }
+            System.out.println();
         }
     }
 
