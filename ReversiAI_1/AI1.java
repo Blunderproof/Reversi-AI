@@ -52,7 +52,7 @@ class AI1 {
                     List<Integer> moves = getCurrValidMoves(round, state, me);
                     chosenMove = moves.get( (int)(Math.random() * moves.size()) );
                 } else {
-                    RNode parent = new RNode(null, 0, 0.0, me, -1);
+                    RNode parent = new RNode(null, 0, 0.0, me, -1, 0);
                     buildChildNodes(parent, state);
     
                     // minimax and alpha beta happen in here
@@ -109,7 +109,7 @@ class AI1 {
         printState(childState);
 
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
-        RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move);
+        RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move, safe);
 
         if (newChildNode.getDepth() < MAX_DEPTH) {
             // build another layer of children
