@@ -28,7 +28,7 @@ class AI1 {
     // ADDED
     double defaultHScore[][] = new double[8][8];
     final int MAX_DEPTH;
-    final boolean shouldDebug = false;
+    final boolean shouldDebug = true;
 
     // initHScores(10.0, 2.5, -0.25, 0.50);
     final double CORNER_SCORE = 15;
@@ -113,6 +113,8 @@ class AI1 {
         double safeWeight = 0.8;
 
         PieceCount count = PieceCount.countPiecesFromState(childState);
+        debugPrintln("My count: " + count.getMyCountForPlayer(parent.getPlayer()));
+        debugPrintln("Opponent count: " + count.getOpponentCountForPlayer(parent.getPlayer()));
 
         if (count.getMyCountForPlayer(parent.getPlayer()) == 0) {
             System.out.println("AVOID THIS MOVE");
