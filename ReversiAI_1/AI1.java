@@ -30,8 +30,8 @@ class AI1 {
     final int MAX_DEPTH;
     final boolean shouldDebug = false;
 
-    public AI1(int _me, String host, int max_depth) {
-        MAX_DEPTH = max_depth;
+    public AI1(int _me, String host, int maxDepth) {
+        MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
@@ -676,7 +676,11 @@ class AI1 {
     }
 
     public static void main(String args[]) {
-        new AI1(Integer.parseInt(args[1]), args[0], Integer.parseInt(args[2]));
+        int maxDepth = 5;
+        if (args.length >= 3 ) {
+            maxDepth = Integer.parseInt(args[2]);
+        }
+        new AI1(Integer.parseInt(args[1]), args[0], maxDepth);
     }
 
 }
