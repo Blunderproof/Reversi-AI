@@ -28,6 +28,7 @@ class AI1 {
     // ADDED
     double defaultHScore[][] = new double[8][8];
     final int MAX_DEPTH = 3;
+    final boolean shouldDebug = false;
 
     public AI1(int _me, String host) {
         me = _me;
@@ -40,7 +41,7 @@ class AI1 {
             readMessage();
 
             if (turn == me) {
-                System.out.println("Move");
+                System.out.println("\n\n\n\nStarting Move");
 
                 RNode parent = new RNode(null, 0, state, 0.0, me, -1);
                 buildChildNodes(parent);
@@ -58,11 +59,16 @@ class AI1 {
     }
 
     public void buildChildNodes(RNode parent) {
-        List<Integer> currValidMoves = getCurrValidMoves(round, parent.getState(), parent.getPlayer());
+        debugPrintln("Parent move: " + moveToString(parent.getMove()) + " and depth: " + parent.getDepth() + " and player: " + parent.getPlayer());
+        printState(parent.getState());
+        List<Integer> currValidMoves = getCurrValidMoves(round + parent.getDepth(), parent.getState(), parent.getPlayer());
 
-        System.out.println("\n\nPossible Moves");
+        if (shouldDebug) {
+
+        }
+        debugPrintln("\n\nPossible Moves");
         for (int move : currValidMoves) {
-            parent.addChild( buildChildNodeFromMove(parent, state, move) );
+            parent.addChild( buildChildNodeFromMove(parent, move) );
         }
 
         if (parent.getDepth() <= MAX_DEPTH) {
@@ -74,10 +80,12 @@ class AI1 {
 
     }
 
-    public RNode buildChildNodeFromMove(RNode parent, int[][] state, int move) {
-        int[][] childState = state.clone();
+    public RNode buildChildNodeFromMove(RNode parent, int move) {
+        int[][] childState = deepCopyState(parent.getState());
         int row = move / 8;
         int col = move % 8;
+
+        int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth() + 1);
 
         int incx, incy;
         double moveScore = 0;
@@ -87,16 +95,17 @@ class AI1 {
                     continue;
 
                 // updated multiple times as the update can be from 1+ directions
-                moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, turn); 
+                moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
+        childState[row][col] = parent.getPlayer();
         // add the current location
         moveScore += defaultHScore[row][col];
         
-        System.out.println( moveToString(move) + ": " + moveScore );
+        debugPrintln( moveToString(move) + ": " + moveScore );
+        printState(childState);
 
-        int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
-        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(childPlayer);
+        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
         return new RNode(parent, parent.getDepth() + 1, childState, childScore, childPlayer, move);
     }
 
@@ -208,13 +217,14 @@ class AI1 {
 
     private double getScoreOfBestChild(RNode node, double bestScoreSoFar) {
         // base case
-        if (node.getDepth() == MAX_DEPTH + 1) {
+        if (node.getDepth() == MAX_DEPTH + 1 || node.getChildren().size() == 0) {
             return evaluateNode(node);
         }
-
+        
         double bestScore = getScoreOfBestChild(node.getChildren().get(0), worstScoreForPlayer(node.getPlayer()));
         if (isScoreBetterThanBest(node.getPlayer(), bestScore, bestScoreSoFar)) {
             // pruning
+            debugPrintln("PRUNING");
             return bestScore;
         }
 
@@ -226,6 +236,7 @@ class AI1 {
 
                 if (isScoreBetterThanBest(node.getPlayer(), bestScore, bestScoreSoFar)) {
                     // pruning
+                    debugPrintln("PRUNING");
                     return bestScore;
                 }
             }
@@ -265,18 +276,18 @@ class AI1 {
             if (pState[4][4] == 0) {
                 cValidMoves.add(4 * 8 + 4);
             }
-            System.out.println("Valid Moves:");
+            debugPrintln("Valid Moves:");
             for (int move : cValidMoves) {
-                System.out.println( moveToString(move) );
+                debugPrintln( moveToString(move) );
             }
         } else {
-            System.out.println("Valid Moves:");
+            debugPrintln("Valid Moves:");
             for (i = 0; i < 8; i++) {
                 for (j = 0; j < 8; j++) {
                     if (pState[i][j] == 0) {
                         if (couldBe(pState, i, j)) {
                             cValidMoves.add(i * 8 + j);
-                            System.out.println( moveToString(i, j) );
+                            debugPrintln( moveToString(i, j) );
                         }
                     }
                 }
@@ -287,7 +298,7 @@ class AI1 {
     }
 
     // Already implemented, don't touch
-    private boolean checkDirection(int state[][], int row, int col, int incx, int incy) { // state, 2, 3, -1, -1
+    private boolean checkDirection(int currState[][], int row, int col, int incx, int incy) { // currState, 2, 3, -1, -1
         int sequence[] = new int[7];
         int seqLen;
         int i, r, c;
@@ -300,7 +311,7 @@ class AI1 {
             if ((r < 0) || (r > 7) || (c < 0) || (c > 7))
                 break;
 
-            sequence[seqLen] = state[r][c]; // sequence[0, 0]
+            sequence[seqLen] = currState[r][c]; // sequence[0, 0]
             seqLen++; // 2
         }
 
@@ -330,7 +341,7 @@ class AI1 {
     }
 
     // Already implemented, don't touch
-    private boolean couldBe(int state[][], int row, int col) {
+    private boolean couldBe(int currState[][], int row, int col) {
         int incx, incy;
 
         for (incx = -1; incx < 2; incx++) {
@@ -338,7 +349,7 @@ class AI1 {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
-                if (checkDirection(state, row, col, incx, incy))
+                if (checkDirection(currState, row, col, incx, incy))
                     return true;
             }
         }
@@ -382,12 +393,7 @@ class AI1 {
 
         System.out.println("Turn: " + turn);
         System.out.println("Round: " + round);
-        for (i = 7; i >= 0; i--) {
-            for (j = 0; j < 8; j++) {
-                System.out.print(state[i][j]);
-            }
-            System.out.println();
-        }
+        printState(state);
         System.out.println();
     }
 
@@ -441,11 +447,53 @@ class AI1 {
     }
 
     private static String moveToString(int move) {
+        if (move < 0) {
+            return "<<Parent>>";
+        }
         return ( (char)('a' + move / 8) ) + ", " + (move % 8 + 1);
     }
 
     private static String moveToString(int row, int col) {
         return ( (char)('a' + row) ) + ", " + (col + 1);
+    }
+
+    private void debugPrint(Object obj) {
+        if (shouldDebug) {
+            System.out.print(obj);
+        }
+    }
+
+    private void debugPrintln() {
+        if (shouldDebug) {
+            System.out.println();
+        }
+    }
+
+    private void debugPrintln(Object obj) {
+        if (shouldDebug) {
+            System.out.println(obj);
+        }
+    }
+
+    private void printState(int[][] currState) {
+        for (int row = 7; row >= 0; row--) {
+            for (int col = 0; col < 8; col++) {
+                debugPrint(currState[row][col]);
+            }
+            debugPrintln();
+        }
+    }
+
+    public static int[][] deepCopyState(int[][] original) {
+        if (original == null) {
+            return null;
+        }
+    
+        final int[][] result = new int[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+        return result;
     }
 
     public static void main(String args[]) {
