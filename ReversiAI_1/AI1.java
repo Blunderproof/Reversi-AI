@@ -30,15 +30,19 @@ class AI1 {
     final int MAX_DEPTH;
     final boolean shouldDebug = false;
 
+    // initHScores(10.0, 2.5, -0.25, 0.50);
+    final double CORNER_SCORE = 15;
+    final double PRECORNER_SCORE = -4;
+    final double EDGE_SCORE = 2.5;
+    final double ONE_IN_SCORE = -0.2;
+    final double NORMAL_SCORE = 0.75;
+
     public AI1(int _me, String host, int maxDepth) {
         MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
-        // don't delete this comment - has excellent params
-        // initHScores(10.0, 2.5, -0.25, 0.50);
-        // corner, precorner, edge, one-in, normal
-        initHScores(10, -4, 2.5, -0.3, .75);
+        initHScores();
 
         while (true) {
             System.out.println("Read");
@@ -370,37 +374,37 @@ class AI1 {
 
 
     // create hScores
-    private void initHScores(double cornerScore, double precornerScore, double edgeScore, double oneInScore, double normalScore) {
+    private void initHScores() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
-                    defaultHScore[i][j] = edgeScore;
+                    defaultHScore[i][j] = EDGE_SCORE;
                 } else if ( (i == 1 || i == 6) && (j > 0 && j < 3 || j > 4 && j < 7) || (j == 1 || j == 6) && (i > 0 && i < 3 || i > 4 && i < 7)) { // oneIn
-                    defaultHScore[i][j] = oneInScore;
+                    defaultHScore[i][j] = ONE_IN_SCORE;
                 } else {
-                    defaultHScore[i][j] = normalScore;
+                    defaultHScore[i][j] = NORMAL_SCORE;
                 }
 
             }
         } // explicitly set the corner and "precorner" positions
-        defaultHScore[0][0] = cornerScore;
-        defaultHScore[0][7] = cornerScore;
-        defaultHScore[7][0] = cornerScore;
-        defaultHScore[7][7] = cornerScore;
+        defaultHScore[0][0] = CORNER_SCORE;
+        defaultHScore[0][7] = CORNER_SCORE;
+        defaultHScore[7][0] = CORNER_SCORE;
+        defaultHScore[7][7] = CORNER_SCORE;
 
-        defaultHScore[1][1] = precornerScore;
-        defaultHScore[0][1] = precornerScore;
-        defaultHScore[1][0] = precornerScore;
-        defaultHScore[6][6] = precornerScore;
-        defaultHScore[7][6] = precornerScore;
-        defaultHScore[6][7] = precornerScore;
+        defaultHScore[1][1] = PRECORNER_SCORE;
+        defaultHScore[0][1] = PRECORNER_SCORE;
+        defaultHScore[1][0] = PRECORNER_SCORE;
+        defaultHScore[6][6] = PRECORNER_SCORE;
+        defaultHScore[7][6] = PRECORNER_SCORE;
+        defaultHScore[6][7] = PRECORNER_SCORE;
 
-        defaultHScore[1][6] = precornerScore;
-        defaultHScore[0][6] = precornerScore;
-        defaultHScore[1][7] = precornerScore;
-        defaultHScore[6][1] = precornerScore;
-        defaultHScore[7][1] = precornerScore;
-        defaultHScore[6][0] = precornerScore;
+        defaultHScore[1][6] = PRECORNER_SCORE;
+        defaultHScore[0][6] = PRECORNER_SCORE;
+        defaultHScore[1][7] = PRECORNER_SCORE;
+        defaultHScore[6][1] = PRECORNER_SCORE;
+        defaultHScore[7][1] = PRECORNER_SCORE;
+        defaultHScore[6][0] = PRECORNER_SCORE;
 
         printSquareValues(defaultHScore);
     }
@@ -591,6 +595,16 @@ class AI1 {
             for (i = 0; i < 8; i++) {
                 for (j = 0; j < 8; j++) {
                     state[i][j] = Integer.parseInt(sin.readLine());
+                }
+            }
+            // update pre-corner weights to make them good after corner capture
+            for (int row = 0; row == 0 || row == 7; row += 7) {
+                for (int col = 0; col == 0 || col == 7; col += 7) {
+                    if (state[row][col] != 0) {
+                        defaultHScore[Math.abs(row - 1)][col] = PRECORNER_SCORE * -1;
+                        defaultHScore[row][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
+                        defaultHScore[Math.abs(row - 1)][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
+                    }
                 }
             }
             sin.readLine();
