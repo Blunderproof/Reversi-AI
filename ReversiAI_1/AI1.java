@@ -35,6 +35,7 @@ class AI1 {
         me = _me;
         initClient(host);
 
+        // don't delete this comment - has excellent params
         // initHScores(10.0, 2.5, -0.25, 0.50);
         initHScores(10, -.8, 2.5, -.5, .5);
 
@@ -193,12 +194,14 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x++;
+                if (x >= 8) break;
             }
             x = 0;
             y = 0;
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y++;
+                if (y >= 8) break;
             }
 
             for(x = 0; x < 8; x++){ // north-west
@@ -232,6 +235,7 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x--;
+                if (x < 0) break;
             }
             x = 7;
             y = 0;
@@ -274,6 +278,7 @@ class AI1 {
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y--;
+                if (y < 0) break;
             }
             for(y = 7; y >= 0; y--){ // north-east
                 x = 0;
@@ -309,7 +314,8 @@ class AI1 {
             y = 7;
             while(currState[x][y] == turn){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
-                y++;
+                y--;
+                if (y < 0) break;
             }
             for(x = 7; x >= 0; x--){ // south-east
                 y = 7;
