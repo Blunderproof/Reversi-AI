@@ -6,15 +6,13 @@ public class RNode {
     
     private RNode parent;
     private int depth;
-    private int [][]state = new int[8][8];
     private double netScore;
     private int player;
     private int move;
 
-    public RNode(RNode parent, int depth, int[][] state, double netScore, int player, int move) {
+    public RNode(RNode parent, int depth, double netScore, int player, int move) {
         this.parent = parent;
         this.depth = depth;
-        this.state = state;
         this.netScore = netScore;
         this.player = player;
         this.move = move;
@@ -43,10 +41,5 @@ public class RNode {
     public int getPlayer() {
         return player;
     }
-
-    public int[][] getState(){
-        return state;
-    }
-
 
 }

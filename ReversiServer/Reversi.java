@@ -36,6 +36,15 @@ class MyCanvas extends JComponent {
         gameOver = true;
         System.out.println("Game Over");
         repaint();
+        try
+        {
+            Thread.sleep(10 * 1000);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+        System.exit(0);
     }
 
 
