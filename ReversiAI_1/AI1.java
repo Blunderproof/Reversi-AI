@@ -98,10 +98,9 @@ class AI1 {
             }
         }
         int safe = countSafePositions(childState, parent.getPlayer());
-        if(safe > 0){
-            System.out.println("Safe positions: " + safe);
-        }
-        
+        double safeWeight = 0.3;
+        moveScore += (double)safe * safeWeight; 
+
         childState[row][col] = parent.getPlayer();
         // add the current location
         moveScore += defaultHScore[row][col];
@@ -206,26 +205,28 @@ class AI1 {
                 y++;
                 if (y >= 8) break;
             }
+            northwestLoop:
             for(x = 0; x < 8; x++){ // north-west
                 y = 0;
                 int currX = x;
                 while(currX >= 0){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[currX][y] != turn){
+                        break northwestLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
                     currX-=1;
                     y+=1;
                 }
             }
-            for(; y < 8; y++){
+            southeastLoop:
+            for(; y < 8; y++){ // south-east
                 x = 0;
                 int currY = y;
                 while(currY >= 0){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[x][currY] != turn){
+                        break southeastLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
                     x+=1;
                     currY-=1;
                 }
@@ -248,26 +249,28 @@ class AI1 {
                 y++;
                 if (y >= 8) break;
             }
+            northeastLoop:
             for(x = 7; x >= 0; x--){ // north-east
                 y = 0;
                 int currX = x;
                 while(currX < 8){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[currX][y] != turn){
+                        break northeastLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
                     currX+=1;
                     y+=1;
                 }
             }
+            southwestLoop:
             for(; y < 8; y++){ // south-west
                 x = 7;
                 int currY = 0;
                 while(currY >= 0){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[x][currY] != turn){
+                        break southwestLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
                     x-=1;
                     currY-=1;
                 }
@@ -289,26 +292,28 @@ class AI1 {
                 y--;
                 if (y < 0) break;
             }
+            northeastLoop:
             for(y = 7; y >= 0; y--){ // north-east
                 x = 0;
                 int currY = y;
                 while(currY < 8){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[x][currY] != turn){
+                        break northeastLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
                     x+=1;
                     currY+=1;
                 }
             }
+            southwestLoop:
             for(x = 0; x < 8; x++){ // south-west
                 y = 7;
                 int currX = 0;
                 while(currX >= 0){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[currX][y] != turn){
+                        break southwestLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
                     currX-=1;
                     y-=1;
                 }
@@ -329,26 +334,28 @@ class AI1 {
                 y--;
                 if (y < 0) break;
             }
+            southeastLoop:
             for(x = 7; x >= 0; x--){ // south-east
                 y = 7;
                 int currX = x;
                 while(currX < 8){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[currX][y] != turn){
+                        break southeastLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
                     currX+=1;
                     y-=1;
                 }
             }
+            northeastLoop:
             for(y = 7; y >= 0; y--){ // north-west
                 x = 7;
                 int currY = y;
                 while(currY < 8){
-                    if(currState[x][y] != turn){
-                        break;
+                    if(currState[x][currY] != turn){
+                        break northeastLoop;
                     }
-                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
                     x-=1;
                     currY+=1;
                 }
