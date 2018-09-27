@@ -395,6 +395,13 @@ class AI1 {
         defaultHScore[7][6] = precornerScore;
         defaultHScore[6][7] = precornerScore;
 
+        defaultHScore[1][6] = precornerScore;
+        defaultHScore[0][6] = precornerScore;
+        defaultHScore[1][7] = precornerScore;
+        defaultHScore[6][1] = precornerScore;
+        defaultHScore[7][1] = precornerScore;
+        defaultHScore[6][0] = precornerScore;
+
         printSquareValues(defaultHScore);
     }
 
