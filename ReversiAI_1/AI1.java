@@ -208,24 +208,26 @@ class AI1 {
             }
             for(x = 0; x < 8; x++){ // north-west
                 y = 0;
-                while(x >= 0){
+                int currX = x;
+                while(currX >= 0){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x-=1;
-                    y+=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    currX-=1;
+                    y+=1;
                 }
             }
             for(; y < 8; y++){
                 x = 0;
-                while(y >= 0){
+                int currY = y;
+                while(currY >= 0){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x+=1;
-                    y-=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    x+=1;
+                    currY-=1;
                 }
             }
         
@@ -248,24 +250,26 @@ class AI1 {
             }
             for(x = 7; x >= 0; x--){ // north-east
                 y = 0;
-                while(x >= 0){
+                int currX = x;
+                while(currX < 8){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x+=1;
-                    y+=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    currX+=1;
+                    y+=1;
                 }
             }
             for(; y < 8; y++){ // south-west
                 x = 7;
-                while(y >= 0){
+                int currY = 0;
+                while(currY >= 0){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x-=1;
-                    y-=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    x-=1;
+                    currY-=1;
                 }
             }
         }
@@ -287,24 +291,26 @@ class AI1 {
             }
             for(y = 7; y >= 0; y--){ // north-east
                 x = 0;
-                while(y < 8){
+                int currY = y;
+                while(currY < 8){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x+=1;
-                    y+=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    x+=1;
+                    currY+=1;
                 }
             }
             for(x = 0; x < 8; x++){ // south-west
                 y = 7;
-                while(x >= 0){
+                int currX = 0;
+                while(currX >= 0){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x-=1;
-                    y-=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    currX-=1;
+                    y-=1;
                 }
             }
         }
@@ -325,24 +331,26 @@ class AI1 {
             }
             for(x = 7; x >= 0; x--){ // south-east
                 y = 7;
-                while(x < 8){
+                int currX = x;
+                while(currX < 8){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x+=1;
-                    y-=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    currX+=1;
+                    y-=1;
                 }
             }
             for(y = 7; y >= 0; y--){ // north-west
                 x = 7;
-                while(y < 8){
+                int currY = y;
+                while(currY < 8){
                     if(currState[x][y] != turn){
                         break;
                     }
-                    x-=1;
-                    y+=1;
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                    x-=1;
+                    currY+=1;
                 }
             }
         }
