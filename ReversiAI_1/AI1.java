@@ -35,7 +35,8 @@ class AI1 {
         me = _me;
         initClient(host);
 
-        initHScores(10.0, 2.5, -0.25, 0.50);
+        // initHScores(10.0, 2.5, -0.25, 0.50);
+        initHScores(10, -.8, 2.5, -.5, .5);
 
         while (true) {
             System.out.println("Read");
@@ -95,6 +96,8 @@ class AI1 {
                 moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
+        System.out.println("Safe positions: " + countSafePositions(childState, parent.getPlayer()) + "\n");
+        
         childState[row][col] = parent.getPlayer();
         // add the current location
         moveScore += defaultHScore[row][col];
@@ -181,8 +184,163 @@ class AI1 {
         return score; 
     }
 
+    private int countSafePositions(int [][]currState, int turn){
+        HashSet<String> safePositions = new HashSet<>(); 
+
+        if(currState[0][0] == turn){ //bottom left
+            int x = 0;
+            int y = 0;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                x++;
+            }
+            x = 0;
+            y = 0;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                y++;
+            }
+
+            for(x = 0; x < 8; x++){ // north-west
+                y = 0;
+                while(x >= 0){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x-=1;
+                    y+=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+            for(y = 0; y < 8; y++){
+                x = 0;
+                while(y >= 0){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x+=1;
+                    y-=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+        
+        }
+
+        if(currState[7][0] == turn){ // botton right
+            int x = 7;
+            int y = 0;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                x--;
+            }
+            x = 7;
+            y = 0;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                y++;
+            }
+            for(x = 7; x >= 0; x--){ // north-east
+                y = 0;
+                while(x >= 0){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x+=1;
+                    y+=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+            for(y = 0; y < 8; y++){ // south-west
+                x = 7;
+                while(y >= 0){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x-=1;
+                    y-=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+        }
+        if(currState[0][7] == turn){ // upper left
+            int x = 0;
+            int y = 7;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                x++;
+            }
+            x = 0;
+            y = 7;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                y--;
+            }
+            for(y = 7; y >= 0; y--){ // north-east
+                x = 0;
+                while(y < 8){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x+=1;
+                    y+=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+            for(x = 0; x < 8; x++){ // south-west
+                y = 7;
+                while(x >= 0){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x-=1;
+                    y-=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+        }
+        if(currState[7][7] == turn){ // upper right
+            int x = 7;
+            int y = 7;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                x--;
+            }
+            x = 7;
+            y = 7;
+            while(currState[x][y] == turn){
+                safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                y++;
+            }
+            for(x = 7; x >= 0; x--){ // south-east
+                y = 7;
+                while(x < 8){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x+=1;
+                    y-=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+            for(y = 7; y >= 0; y--){ // north-west
+                x = 7;
+                while(y < 8){
+                    if(currState[x][y] != turn){
+                        break;
+                    }
+                    x-=1;
+                    y+=1;
+                    safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
+                }
+            }
+        }
+        return safePositions.size();
+    }
+
+
+
     // create hScores
-    private void initHScores(double cornerScore, double edgeScore, double oneInScore, double normalScore) {
+    private void initHScores(double cornerScore, double precornerScore, double edgeScore, double oneInScore, double normalScore) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
@@ -194,11 +352,19 @@ class AI1 {
                 }
 
             }
-        } // explicitly set the corners
+        } // explicitly set the corner and "precorner" positions
         defaultHScore[0][0] = cornerScore;
         defaultHScore[0][7] = cornerScore;
         defaultHScore[7][0] = cornerScore;
         defaultHScore[7][7] = cornerScore;
+
+        defaultHScore[1][1] = precornerScore;
+        defaultHScore[0][1] = precornerScore;
+        defaultHScore[1][0] = precornerScore;
+        defaultHScore[6][6] = precornerScore;
+        defaultHScore[7][6] = precornerScore;
+        defaultHScore[6][7] = precornerScore;
+
         printSquareValues(defaultHScore);
     }
 
