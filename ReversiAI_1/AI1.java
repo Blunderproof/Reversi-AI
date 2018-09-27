@@ -27,10 +27,11 @@ class AI1 {
 
     // ADDED
     double defaultHScore[][] = new double[8][8];
-    final int MAX_DEPTH = 3;
+    final int MAX_DEPTH;
     final boolean shouldDebug = false;
 
-    public AI1(int _me, String host) {
+    public AI1(int _me, String host, int max_depth) {
+        MAX_DEPTH = max_depth;
         me = _me;
         initClient(host);
 
@@ -43,11 +44,18 @@ class AI1 {
             if (turn == me) {
                 System.out.println("\n\n\n\nStarting Move");
 
-                RNode parent = new RNode(null, 0, state, 0.0, me, -1);
-                buildChildNodes(parent);
-
-                // minimax and alpha beta happen in here
-                int chosenMove = getBestMoveUsingMinMax(parent);
+                int chosenMove;
+                if (round < 4) {
+                    // randomize
+                    List<Integer> moves = getCurrValidMoves(round, state, me);
+                    chosenMove = moves.get( (int)(Math.random() * moves.size()) );
+                } else {
+                    RNode parent = new RNode(null, 0, 0.0, me, -1);
+                    buildChildNodes(parent, state);
+    
+                    // minimax and alpha beta happen in here
+                    chosenMove = getBestMoveUsingMinMax(parent);
+                } 
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
 
@@ -58,30 +66,19 @@ class AI1 {
         }
     }
 
-    public void buildChildNodes(RNode parent) {
+    public void buildChildNodes(RNode parent, int[][] currState) {
         debugPrintln("Parent move: " + moveToString(parent.getMove()) + " and depth: " + parent.getDepth() + " and player: " + parent.getPlayer());
-        printState(parent.getState());
-        List<Integer> currValidMoves = getCurrValidMoves(round + parent.getDepth(), parent.getState(), parent.getPlayer());
+        printState(currState);
+        List<Integer> currValidMoves = getCurrValidMoves(round + parent.getDepth(), currState, parent.getPlayer());
 
-        if (shouldDebug) {
-
-        }
         debugPrintln("\n\nPossible Moves");
         for (int move : currValidMoves) {
-            parent.addChild( buildChildNodeFromMove(parent, move) );
+            parent.addChild( buildChildNodeFromMove(parent, move, currState) );
         }
-
-        if (parent.getDepth() <= MAX_DEPTH) {
-            // build another layer of children
-            for (RNode child : parent.getChildren()) {
-                buildChildNodes(child);
-            }
-        }
-
     }
 
-    public RNode buildChildNodeFromMove(RNode parent, int move) {
-        int[][] childState = deepCopyState(parent.getState());
+    public RNode buildChildNodeFromMove(RNode parent, int move, int[][] parentState) {
+        int[][] childState = deepCopyState(parentState);
         int row = move / 8;
         int col = move % 8;
 
@@ -108,7 +105,13 @@ class AI1 {
         printState(childState);
 
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
-        return new RNode(parent, parent.getDepth() + 1, childState, childScore, childPlayer, move);
+        RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move);
+
+        if (newChildNode.getDepth() < MAX_DEPTH) {
+            // build another layer of children
+            buildChildNodes(newChildNode, childState);
+        }
+        return newChildNode;
     }
 
     public double updateStateAndCalculateScore(int[][] currState, int row, int col, int incx, int incy, int turn) {
@@ -662,7 +665,7 @@ class AI1 {
     }
 
     public static void main(String args[]) {
-        new AI1(Integer.parseInt(args[1]), args[0]);
+        new AI1(Integer.parseInt(args[1]), args[0], Integer.parseInt(args[2]));
     }
 
 }
