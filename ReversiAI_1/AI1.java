@@ -31,10 +31,10 @@ class AI1 {
     final boolean shouldDebug = false;
 
     // initHScores(10.0, 2.5, -0.25, 0.50);
-    final double CORNER_SCORE = 20;
-    final double PRECORNER_SCORE = -6;
-    final double EDGE_SCORE = 5;
-    final double NORMAL_SCORE = 1.0;
+    final double CORNER_SCORE = 30;
+    final double PRECORNER_SCORE = -15;
+    final double EDGE_SCORE = 3;
+    final double NORMAL_SCORE = 0.4;
 
     public AI1(int _me, String host, int maxDepth) {
         MAX_DEPTH = maxDepth;
@@ -113,11 +113,11 @@ class AI1 {
         debugPrintln("My count: " + count.getMyCountForPlayer(parent.getPlayer()));
         debugPrintln("Opponent count: " + count.getOpponentCountForPlayer(parent.getPlayer()));
 
-        if (count.getMyCountForPlayer(parent.getPlayer()) < 5) {
+        if (count.getMyCountForPlayer(parent.getPlayer()) < 3) {
             debugPrintln("AVOID THIS MOVE");
             moveScore -= 30; // * (parent.getDepth() / MAX_DEPTH);
         } 
-        if (count.getOpponentCountForPlayer(parent.getPlayer()) < 5) {
+        if (count.getOpponentCountForPlayer(parent.getPlayer()) < 3) {
             debugPrintln("SEIZE THIS MOVE");
             moveScore += 30; // * (parent.getDepth() / MAX_DEPTH);
         }
@@ -130,8 +130,8 @@ class AI1 {
         debugPrintln( moveToString(move) + ": " + moveScore );
         printState(childState);
 
-        //double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
-        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()) * ((MAX_DEPTH - parent.getDepth())/MAX_DEPTH);
+        //double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer())* ((MAX_DEPTH - parent.getDepth())/MAX_DEPTH); 
+        double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()); 
 
         debugPrintln("Parent player: " + parent.getPlayer() + " Child Player: " + childPlayer);
 
@@ -213,20 +213,20 @@ class AI1 {
         return score; 
     }
 
-    private int countSafePositions(int [][]currState, int turn){
+    private int countSafePositions(int [][]currState, int player){
         HashSet<String> safePositions = new HashSet<>(); 
 
-        if(currState[0][0] == turn){ //bottom left
+        if(currState[0][0] == player){ //bottom left
             int x = 0;
             int y = 0;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x++;
                 if (x >= 8) break;
             }
             x = 0;
             y = 0;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y++;
                 if (y >= 8) break;
@@ -236,7 +236,7 @@ class AI1 {
                 y = 0;
                 int currX = x;
                 while(currX >= 0){
-                    if(currState[currX][y] != turn){
+                    if(currState[currX][y] != player){
                         break northwestLoop;
                     }
                     safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
@@ -249,7 +249,7 @@ class AI1 {
                 x = 0;
                 int currY = y;
                 while(currY >= 0){
-                    if(currState[x][currY] != turn){
+                    if(currState[x][currY] != player){
                         break southeastLoop;
                     }
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
@@ -260,17 +260,17 @@ class AI1 {
         
         }
 
-        if(currState[7][0] == turn){ // botton right
+        if(currState[7][0] == player){ // botton right
             int x = 7;
             int y = 0;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x--;
                 if (x < 0) break;
             }
             x = 7;
             y = 0;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y++;
                 if (y >= 8) break;
@@ -280,7 +280,7 @@ class AI1 {
                 y = 0;
                 int currX = x;
                 while(currX < 8){
-                    if(currState[currX][y] != turn){
+                    if(currState[currX][y] != player){
                         break northeastLoop;
                     }
                     safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
@@ -293,7 +293,7 @@ class AI1 {
                 x = 7;
                 int currY = 0;
                 while(currY >= 0){
-                    if(currState[x][currY] != turn){
+                    if(currState[x][currY] != player){
                         break southwestLoop;
                     }
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
@@ -302,10 +302,10 @@ class AI1 {
                 }
             }
         }
-        if(currState[0][7] == turn){ // upper left
+        if(currState[0][7] == player){ // upper left
             int x = 0;
             int y = 7;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x++;
                 if (x >= 8) break;
@@ -313,7 +313,7 @@ class AI1 {
             }
             x = 0;
             y = 7;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y--;
                 if (y < 0) break;
@@ -323,7 +323,7 @@ class AI1 {
                 x = 0;
                 int currY = y;
                 while(currY < 8){
-                    if(currState[x][currY] != turn){
+                    if(currState[x][currY] != player){
                         break northeastLoop;
                     }
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
@@ -336,7 +336,7 @@ class AI1 {
                 y = 7;
                 int currX = 0;
                 while(currX >= 0){
-                    if(currState[currX][y] != turn){
+                    if(currState[currX][y] != player){
                         break southwestLoop;
                     }
                     safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
@@ -345,17 +345,17 @@ class AI1 {
                 }
             }
         }
-        if(currState[7][7] == turn){ // upper right
+        if(currState[7][7] == player){ // upper right
             int x = 7;
             int y = 7;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 x--;
                 if (x < 0) break;
             }
             x = 7;
             y = 7;
-            while(currState[x][y] == turn){
+            while(currState[x][y] == player){
                 safePositions.add(Integer.toString(x) + " " + Integer.toString(y));
                 y--;
                 if (y < 0) break;
@@ -365,7 +365,7 @@ class AI1 {
                 y = 7;
                 int currX = x;
                 while(currX < 8){
-                    if(currState[currX][y] != turn){
+                    if(currState[currX][y] != player){
                         break southeastLoop;
                     }
                     safePositions.add(Integer.toString(currX) + " " + Integer.toString(y));
@@ -378,7 +378,7 @@ class AI1 {
                 x = 7;
                 int currY = y;
                 while(currY < 8){
-                    if(currState[x][currY] != turn){
+                    if(currState[x][currY] != player){
                         break northeastLoop;
                     }
                     safePositions.add(Integer.toString(x) + " " + Integer.toString(currY));
@@ -618,6 +618,7 @@ class AI1 {
                         defaultHScore[Math.abs(row - 1)][col] = PRECORNER_SCORE * -1;
                         defaultHScore[row][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
                         defaultHScore[Math.abs(row - 1)][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
+                        printSquareValues(defaultHScore);
                     }
                 }
             }
