@@ -28,26 +28,24 @@ class AI1 {
     // ADDED
     double defaultHScore[][] = new double[8][8];
     final int MAX_DEPTH;
-    final boolean shouldDebug = true;
+    final boolean shouldDebug = false;
 
     // initHScores(10.0, 2.5, -0.25, 0.50);
-    final double CORNER_SCORE = 15;
-    final double PRECORNER_SCORE = -4;
-    final double EDGE_SCORE = 2.5;
-    final double ONE_IN_SCORE = -0.2;
-    final double NORMAL_SCORE = 0.75;
+    final double CORNER_SCORE = 20;
+    final double PRECORNER_SCORE = -6;
+    final double EDGE_SCORE = 5;
+    final double NORMAL_SCORE = 1.0;
 
     public AI1(int _me, String host, int maxDepth) {
         MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
-        state[3][3] = 2;
-        state[3][4] = 2;
-        state[4][3] = 1;
-        state[4][4] = 1;
+        // state[3][3] = 2;
+        // state[3][4] = 2;
+        // state[4][3] = 1;
+        // state[4][4] = 1;
 
-        round = 4;
         initHScores();
 
         while (true) {
@@ -61,8 +59,7 @@ class AI1 {
                 if (round < 4) {
                     // randomize
                     List<Integer> moves = getCurrValidMoves(round, state, me);
-                    // chosenMove = moves.get( (int)(Math.random() * moves.size()) );
-                    chosenMove = moves.get( (int)(moves.size() - 1) );
+                    chosenMove = moves.get( (int)(Math.random() * moves.size()) );
                 } else {
                     RNode parent = new RNode(null, 0, 0.0, me, -1, 0);
                     buildChildNodes(parent, state);
@@ -80,14 +77,14 @@ class AI1 {
         }
     }
 
-    public void buildChildNodes(RNode parent, int[][] currState) {
-        debugPrintln("Parent move: " + moveToString(parent.getMove()) + " and depth: " + parent.getDepth() + " and player: " + parent.getPlayer());
+    public void buildChildNodes(RNode node, int[][] currState) {
+        debugPrintln("Parent move: " + moveToString(node.getMove()) + " and depth: " + node.getDepth() + " and player: " + node.getPlayer());
         printState(currState);
-        List<Integer> currValidMoves = getCurrValidMoves(round + parent.getDepth(), currState, parent.getPlayer());
+        List<Integer> currValidMoves = getCurrValidMoves(round + node.getDepth(), currState, node.getPlayer());
 
-        debugPrintln("\n\nPossible Moves");
+        debugPrintln("\n\nPossible Moves for player: " + node.getPlayer());
         for (int move : currValidMoves) {
-            parent.addChild( buildChildNodeFromMove(parent, move, currState) );
+            node.addChild( buildChildNodeFromMove(node, move, currState) );
         }
     }
 
@@ -96,7 +93,7 @@ class AI1 {
         int row = move / 8;
         int col = move % 8;
 
-        int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth() + 1);
+        int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
 
         int incx, incy;
         double moveScore = 0;
@@ -110,21 +107,21 @@ class AI1 {
             }
         }
         int safe = countSafePositions(childState, parent.getPlayer());
-        double safeWeight = 0.8;
+        double safeWeight = 20;
 
         PieceCount count = PieceCount.countPiecesFromState(childState);
         debugPrintln("My count: " + count.getMyCountForPlayer(parent.getPlayer()));
         debugPrintln("Opponent count: " + count.getOpponentCountForPlayer(parent.getPlayer()));
 
-        if (count.getMyCountForPlayer(parent.getPlayer()) == 0) {
-            System.out.println("AVOID THIS MOVE");
-            moveScore -= 10000; // * (parent.getDepth() / MAX_DEPTH);
+        if (count.getMyCountForPlayer(parent.getPlayer()) < 5) {
+            debugPrintln("AVOID THIS MOVE");
+            moveScore -= 30; // * (parent.getDepth() / MAX_DEPTH);
         } 
         if (count.getOpponentCountForPlayer(parent.getPlayer()) < 5) {
-            System.out.println("SEIZE THIS MOVE");
+            debugPrintln("SEIZE THIS MOVE");
             moveScore += 30; // * (parent.getDepth() / MAX_DEPTH);
         }
-        moveScore += (double) (safe - parent.getSafeCount()) * safeWeight; 
+        moveScore += (double) (safe) * safeWeight; 
 
         childState[row][col] = parent.getPlayer();
         // add the current location
@@ -135,6 +132,8 @@ class AI1 {
 
         //double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()) * ((MAX_DEPTH - parent.getDepth())/MAX_DEPTH);
+
+        debugPrintln("Parent player: " + parent.getPlayer() + " Child Player: " + childPlayer);
 
         RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move, safe);
 
@@ -165,7 +164,7 @@ class AI1 {
         int count = 0;
         double score = 0;
         for (i = 0; i < seqLen; i++) {
-            if (turn == 0) {
+            if (turn == 1) {
                 if (sequence[i] == 2)
                     count++;
                 else {
@@ -185,7 +184,7 @@ class AI1 {
         }
 
         if (count > 10) {
-            if (turn == 0) {
+            if (turn == 1) {
                 i = 1;
                 r = row + incy * i;
                 c = col + incx * i;
@@ -399,8 +398,6 @@ class AI1 {
             for (int j = 0; j < 8; j++) {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
                     defaultHScore[i][j] = EDGE_SCORE;
-                } else if ( (i == 1 || i == 6) && (j > 0 && j < 3 || j > 4 && j < 7) || (j == 1 || j == 6) && (i > 0 && i < 3 || i > 4 && i < 7)) { // oneIn
-                    defaultHScore[i][j] = ONE_IN_SCORE;
                 } else {
                     defaultHScore[i][j] = NORMAL_SCORE;
                 }
@@ -490,7 +487,6 @@ class AI1 {
 
     private List<Integer> getCurrValidMoves(int round, int[][] pState, int player) {
         List<Integer> cValidMoves = new ArrayList<Integer>();
-        player = me;
         int i, j;
 
         // Game Start
@@ -516,7 +512,7 @@ class AI1 {
             for (i = 0; i < 8; i++) {
                 for (j = 0; j < 8; j++) {
                     if (pState[i][j] == 0) {
-                        if (couldBe(pState, i, j)) {
+                        if (couldBe(pState, player, i, j)) {
                             cValidMoves.add(i * 8 + j);
                             debugPrintln( moveToString(i, j) );
                         }
@@ -528,8 +524,7 @@ class AI1 {
         return cValidMoves;
     }
 
-    // Already implemented, don't touch
-    private boolean checkDirection(int currState[][], int row, int col, int incx, int incy) { // currState, 2, 3, -1, -1
+    private boolean checkDirection(int currState[][], int player, int row, int col, int incx, int incy) { // currState, 2, 3, -1, -1
         int sequence[] = new int[7];
         int seqLen;
         int i, r, c;
@@ -548,7 +543,7 @@ class AI1 {
 
         int count = 0;
         for (i = 0; i < seqLen; i++) { // i = 0
-            if (me == 1) { // if I'm player 1
+            if (player == 1) { // if player 1
                 if (sequence[i] == 2) // if enemy territory
                     count++;
                 else {
@@ -556,7 +551,7 @@ class AI1 {
                         return true;
                     break;
                 }
-            } else { // if I'm player 2
+            } else { // if player 2
                 if (sequence[i] == 1)
                     count++;
                 else {
@@ -571,8 +566,7 @@ class AI1 {
         return false;
     }
 
-    // Already implemented, don't touch
-    private boolean couldBe(int currState[][], int row, int col) {
+    private boolean couldBe(int currState[][], int player, int row, int col) {
         int incx, incy;
 
         for (incx = -1; incx < 2; incx++) {
@@ -580,7 +574,7 @@ class AI1 {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
-                if (checkDirection(currState, row, col, incx, incy))
+                if (checkDirection(currState, player, row, col, incx, incy))
                     return true;
             }
         }
@@ -655,9 +649,6 @@ class AI1 {
     }
 
     private int getChildPlayerFromPlayerAndDepth(int player, int depth) {
-        if (depth == 0) {
-            return player;
-        }
         if (player == 1) {
             return 2;
         } else {

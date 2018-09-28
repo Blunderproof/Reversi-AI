@@ -31,10 +31,10 @@ class MyCanvas extends JComponent {
         sqrWdth = (w - 60) / 8;
         sqrHght = (h - 168) / 8;
 
-         state[3][3] = 2;
-        state[3][4] = 2;
-        state[4][3] = 1;
-        state[4][4] = 1;
+        //  state[3][3] = 2;
+        // state[3][4] = 2;
+        // state[4][3] = 1;
+        // state[4][4] = 1;
     }
     
     public void gameOver() {
@@ -279,10 +279,10 @@ public class Reversi extends JFrame {
         int width = 540;//620;
         int height = 648;//728;
         
-         state[3][3] = 2;
-        state[3][4] = 2;
-        state[4][3] = 1;
-        state[4][4] = 1;
+        //  state[3][3] = 2;
+        // state[3][4] = 2;
+        // state[4][3] = 1;
+        // state[4][4] = 1;
     
         setSize(width,height);//400 width and 500 height
         getContentPane().setBackground(bkgroundColor);
@@ -403,10 +403,10 @@ public class Reversi extends JFrame {
         
         double t1 = minutos * 60.0, t2 = minutos * 60.0;
         
-        state[3][3] = 2;
-        state[3][4] = 2;
-        state[4][3] = 1;
-        state[4][4] = 1;
+        // state[3][3] = 2;
+        // state[3][4] = 2;
+        // state[4][3] = 1;
+        // state[4][4] = 1;
 
         canvas.updateState(state, 0, t1, t2, winner);
         
@@ -423,7 +423,7 @@ public class Reversi extends JFrame {
             System.out.println(e);
         }
 
-        int round = 4;
+        int round = 0;
         int turn = 0;
         int mueva[] = new int[2];
         int nocount = 0;
