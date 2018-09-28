@@ -67,7 +67,7 @@ class AI1 {
                     buildChildNodes(parent, state);
     
                     // minimax and alpha beta happen in here
-                    chosenMove = getOneOfBestMovesUsingMinMax(parent, RANDOM_CHOICE_NUM);
+                    chosenMove = getOneOfBestMovesUsingMinMax(parent);
                 } 
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
@@ -428,7 +428,7 @@ class AI1 {
         printSquareValues(defaultHScore);
     }
 
-    private int getOneOfBestMovesUsingMinMax(RNode parent, int n){ // Only can factor in moves that it chooses on minMax updates
+    private int getOneOfBestMovesUsingMinMax(RNode parent){ // Only can factor in moves that it chooses on minMax updates
         Map<Double, Integer> scoreMoveMap = new HashMap<>();
         
         for (RNode child: parent.getChildren()) {
