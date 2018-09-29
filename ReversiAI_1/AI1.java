@@ -29,7 +29,7 @@ class AI1 {
     double defaultHScore[][] = new double[8][8];
     final int MAX_DEPTH;
     final int RANDOM_CHOICE_NUM = 3;
-    final double RANDOM_CHOICE_WEIGHT = .5; // the closer it is to one, the more likely you are to pick a stronger move
+    final double RANDOM_CHOICE_WEIGHT = 1; // the closer it is to one, the more likely you are to pick a stronger move
     final boolean shouldDebug = false;
 
     // initHScores(10.0, 2.5, -0.25, 0.50);
@@ -442,7 +442,7 @@ class AI1 {
         for (double key : scoreKeys) { 
             totalWeight += key;
             scoreIncrement+=1;
-            if(scoreIncrement > n){
+            if(scoreIncrement > RANDOM_CHOICE_NUM){
                 break;
             }
         }
