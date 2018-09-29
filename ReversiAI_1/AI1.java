@@ -26,8 +26,6 @@ class AI1 {
 
     double positionWeights[][] = new double[8][8];
     final int MAX_DEPTH;
-    final int RANDOM_CHOICE_NUM = 3;
-    final double RANDOM_CHOICE_WEIGHT = 1; // the closer it is to one, the more likely you are to pick a stronger move
     final boolean shouldDebug = false;
 
     final double CORNER_SCORE = 40;
