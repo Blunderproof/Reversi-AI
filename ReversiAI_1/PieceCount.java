@@ -1,6 +1,11 @@
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Helper class designed to return the right number of tokens for each player
+ * so that we don't have to iterate over the state twice to count the same thing.
+ * Can't return tuples in Java, so we build a helper class
+ */
 public class PieceCount {
     private int firstPlayerCount = 0;
     private int secondPlayerCount = 0;

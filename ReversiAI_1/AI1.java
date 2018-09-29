@@ -14,7 +14,6 @@ class AI1 {
     public Socket s;
     public BufferedReader sin;
     public PrintWriter sout;
-    // Random generator = new Random();
 
     double t1, t2;
     int me;
@@ -25,30 +24,26 @@ class AI1 {
 
     int numValidMoves;
 
-    // ADDED
-    double defaultHScore[][] = new double[8][8];
+    double positionWeights[][] = new double[8][8];
     final int MAX_DEPTH;
     final int RANDOM_CHOICE_NUM = 3;
     final double RANDOM_CHOICE_WEIGHT = 1; // the closer it is to one, the more likely you are to pick a stronger move
     final boolean shouldDebug = false;
 
-    // initHScores(10.0, 2.5, -0.25, 0.50);
-    final double CORNER_SCORE = 30;
-    final double PRECORNER_SCORE = -15;
+    final double CORNER_SCORE = 40;
+    final double PRECORNER_SCORE = -20;
     final double EDGE_SCORE = 3;
     final double NORMAL_SCORE = 0.4;
+    final double SAFE_SPACE_WEIGHT = 20;
+    
+    final int DANGER_ZONE_TOKEN_COUNT = 3;
 
     public AI1(int _me, String host, int maxDepth) {
         MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
-        // state[3][3] = 2;
-        // state[3][4] = 2;
-        // state[4][3] = 1;
-        // state[4][4] = 1;
-
-        initHScores();
+        initializePositionWeights();
 
         while (true) {
             System.out.println("Read");
@@ -67,7 +62,7 @@ class AI1 {
                     buildChildNodes(parent, state);
     
                     // minimax and alpha beta happen in here
-                    chosenMove = getOneOfBestMovesUsingMinMax(parent);
+                    chosenMove = getBestMoveUsingMinMax(parent);
                 } 
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
@@ -108,31 +103,31 @@ class AI1 {
                 moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
-        int safe = countSafePositions(childState, parent.getPlayer());
-        double safeWeight = 20;
+        childState[row][col] = parent.getPlayer();
+        // add the current location
+        moveScore += positionWeights[row][col];
 
+        // token counts
         PieceCount count = PieceCount.countPiecesFromState(childState);
         debugPrintln("My count: " + count.getMyCountForPlayer(parent.getPlayer()));
         debugPrintln("Opponent count: " + count.getOpponentCountForPlayer(parent.getPlayer()));
 
-        if (count.getMyCountForPlayer(parent.getPlayer()) < 3) {
+        if (count.getMyCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("AVOID THIS MOVE");
             moveScore -= 30; // * (parent.getDepth() / MAX_DEPTH);
         } 
-        if (count.getOpponentCountForPlayer(parent.getPlayer()) < 3) {
+        if (count.getOpponentCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("SEIZE THIS MOVE");
             moveScore += 30; // * (parent.getDepth() / MAX_DEPTH);
         }
-        moveScore += (double) (safe) * safeWeight; 
-
-        childState[row][col] = parent.getPlayer();
-        // add the current location
-        moveScore += defaultHScore[row][col];
+        
+        // safe spaces
+        int safe = countSafePositions(childState, parent.getPlayer());
+        moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT; 
         
         debugPrintln( moveToString(move) + ": " + moveScore );
         printState(childState);
 
-        //double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer())* ((MAX_DEPTH - parent.getDepth())/MAX_DEPTH); 
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()); 
 
         debugPrintln("Parent player: " + parent.getPlayer() + " Child Player: " + childPlayer);
@@ -193,7 +188,7 @@ class AI1 {
                 while (currState[r][c] == 2) {
                     currState[r][c] = 1;
                     // 2 * because we gain and other loses
-                    score += 2 * defaultHScore[r][c];
+                    score += 2 * positionWeights[r][c];
                     i++;
                     r = row + incy * i;
                     c = col + incx * i;
@@ -205,7 +200,7 @@ class AI1 {
                 while (currState[r][c] == 1) {
                     currState[r][c] = 2;
                     // 2 * because we gain and other loses
-                    score += 2 * defaultHScore[r][c];
+                    score += 2 * positionWeights[r][c];
                     i++;
                     r = row + incy * i;
                     c = col + incx * i;
@@ -395,74 +390,38 @@ class AI1 {
 
 
     // create hScores
-    private void initHScores() {
+    private void initializePositionWeights() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
-                    defaultHScore[i][j] = EDGE_SCORE;
+                    positionWeights[i][j] = EDGE_SCORE;
                 } else {
-                    defaultHScore[i][j] = NORMAL_SCORE;
+                    positionWeights[i][j] = NORMAL_SCORE;
                 }
 
             }
         } // explicitly set the corner and "precorner" positions
-        defaultHScore[0][0] = CORNER_SCORE;
-        defaultHScore[0][7] = CORNER_SCORE;
-        defaultHScore[7][0] = CORNER_SCORE;
-        defaultHScore[7][7] = CORNER_SCORE;
+        positionWeights[0][0] = CORNER_SCORE;
+        positionWeights[0][7] = CORNER_SCORE;
+        positionWeights[7][0] = CORNER_SCORE;
+        positionWeights[7][7] = CORNER_SCORE;
 
-        defaultHScore[1][1] = PRECORNER_SCORE;
-        defaultHScore[0][1] = PRECORNER_SCORE;
-        defaultHScore[1][0] = PRECORNER_SCORE;
-        defaultHScore[6][6] = PRECORNER_SCORE;
-        defaultHScore[7][6] = PRECORNER_SCORE;
-        defaultHScore[6][7] = PRECORNER_SCORE;
+        positionWeights[1][1] = PRECORNER_SCORE;
+        positionWeights[0][1] = PRECORNER_SCORE;
+        positionWeights[1][0] = PRECORNER_SCORE;
+        positionWeights[6][6] = PRECORNER_SCORE;
+        positionWeights[7][6] = PRECORNER_SCORE;
+        positionWeights[6][7] = PRECORNER_SCORE;
 
-        defaultHScore[1][6] = PRECORNER_SCORE;
-        defaultHScore[0][6] = PRECORNER_SCORE;
-        defaultHScore[1][7] = PRECORNER_SCORE;
-        defaultHScore[6][1] = PRECORNER_SCORE;
-        defaultHScore[7][1] = PRECORNER_SCORE;
-        defaultHScore[6][0] = PRECORNER_SCORE;
+        positionWeights[1][6] = PRECORNER_SCORE;
+        positionWeights[0][6] = PRECORNER_SCORE;
+        positionWeights[1][7] = PRECORNER_SCORE;
+        positionWeights[6][1] = PRECORNER_SCORE;
+        positionWeights[7][1] = PRECORNER_SCORE;
+        positionWeights[6][0] = PRECORNER_SCORE;
 
-        printSquareValues(defaultHScore);
+        printPositionWeights(positionWeights);
     }
-
-    private int getOneOfBestMovesUsingMinMax(RNode parent){ // Only can factor in moves that it chooses on minMax updates
-        Map<Double, Integer> scoreMoveMap = new HashMap<>();
-        
-        for (RNode child: parent.getChildren()) {
-            scoreMoveMap.put(child.getNetScore(), child.getMove());
-        }
-
-        //sort the scores, find the total weight over the N highest values
-        SortedSet<Double> scoreKeys = new TreeSet<>(scoreMoveMap.keySet()).descendingSet();
-        int scoreIncrement = 0;
-        double totalWeight = 0.0;
-        for (double key : scoreKeys) { 
-            totalWeight += key;
-            scoreIncrement+=1;
-            if(scoreIncrement > RANDOM_CHOICE_NUM){
-                break;
-            }
-        }
-
-        // get the weighted random value, return the position.
-        double randVal = Math.random() * totalWeight * (1-RANDOM_CHOICE_WEIGHT);
-        double bestScore = scoreKeys.iterator().next();
-        int chosenMove = scoreMoveMap.get(bestScore);
-        for(double key: scoreKeys){
-            if(key > randVal){
-                debugPrintln("RANDOMLY PICKED POS: " + scoreMoveMap.get(key) + " WITH WEIGHT: " + key);
-                debugPrintln("MOST PROBABLE: " + scoreMoveMap.get(bestScore) + " WITH WEIGHT: " + bestScore);
-                chosenMove = scoreMoveMap.get(key);
-                break;
-            }
-            randVal -= key;
-        }
-        return chosenMove;
-    }
-
 
     private int getBestMoveUsingMinMax(RNode parent) {
         // start with 0th child
@@ -484,7 +443,7 @@ class AI1 {
     private double getScoreOfBestChild(RNode node, double bestScoreSoFar) {
         // base case
         if (node.getDepth() == MAX_DEPTH + 1 || node.getChildren().size() == 0) {
-            return evaluateNode(node);
+            return node.getNetScore();
         }
         
         double bestScore = getScoreOfBestChild(node.getChildren().get(0), worstScoreForPlayer(node.getPlayer()));
@@ -517,10 +476,6 @@ class AI1 {
         } else {
             return currentScore < bestScoreSoFar;
         }
-    }
-
-    private double evaluateNode(RNode node) {
-        return node.getNetScore();
     }
 
     private List<Integer> getCurrValidMoves(int round, int[][] pState, int player) {
@@ -653,10 +608,10 @@ class AI1 {
             for (int row = 0; row == 0 || row == 7; row += 7) {
                 for (int col = 0; col == 0 || col == 7; col += 7) {
                     if (state[row][col] != 0) {
-                        defaultHScore[Math.abs(row - 1)][col] = PRECORNER_SCORE * -1;
-                        defaultHScore[row][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
-                        defaultHScore[Math.abs(row - 1)][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
-                        printSquareValues(defaultHScore);
+                        positionWeights[Math.abs(row - 1)][col] = PRECORNER_SCORE * -1;
+                        positionWeights[row][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
+                        positionWeights[Math.abs(row - 1)][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
+                        printPositionWeights(positionWeights);
                     }
                 }
             }
@@ -755,13 +710,14 @@ class AI1 {
         }
     }
 
-    private static void printSquareValues(double[][] scores) {
+    private static void printPositionWeights(double[][] weights) {
         for (int row = 7; row >= 0; row--) {
             for (int col = 0; col < 8; col++) {
-                System.out.print(scores[row][col] + " ");
+                System.out.print(weights[row][col] + " ");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     public static int[][] deepCopyState(int[][] original) {

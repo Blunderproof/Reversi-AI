@@ -13,7 +13,8 @@ public class TestPruning {
         // create parent node and all children
         RNode parent = new RNode(null, 0, 0.0, 1, -1, 0);
         
-        RNode t1L = new RNode(parent, 0, 0.0, 2, 10, 1);
+        // our algorithm prints out the proper move
+        RNode t1L = new RNode(parent, 0, 0.0, 2, 10, 1); // <-- the correct move after pruning!
         RNode t1C = new RNode(parent, 0, 0.0, 2, 11, 1);
         RNode t1R = new RNode(parent, 0, 0.0, 2, 12, 1);
         parent.addChild(t1L);
@@ -90,7 +91,8 @@ public class TestPruning {
         t1Rt2R.addChild(t1Rt2Rt3R);
 
         int move = getBestMoveUsingMinMax(parent);
-        System.out.println(move);
+        // as noted above, the best tree is the left tree, and it should prune 3 times
+        System.out.println(move); // should print out 10
     }
 
 
