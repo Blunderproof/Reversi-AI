@@ -28,12 +28,10 @@ class AI1 {
     // ADDED
     double defaultHScore[][] = new double[8][8];
     final int MAX_DEPTH;
-    final int RANDOM_CHOICE_NUM = 3;
-    final double RANDOM_CHOICE_WEIGHT = 1; // the closer it is to one, the more likely you are to pick a stronger move
     final boolean shouldDebug = false;
 
     // initHScores(10.0, 2.5, -0.25, 0.50);
-    final double CORNER_SCORE = 30;
+    final double CORNER_SCORE = 60;
     final double PRECORNER_SCORE = -15;
     final double EDGE_SCORE = 3;
     final double NORMAL_SCORE = 0.4;
@@ -67,7 +65,7 @@ class AI1 {
                     buildChildNodes(parent, state);
     
                     // minimax and alpha beta happen in here
-                    chosenMove = getOneOfBestMovesUsingMinMax(parent);
+                    chosenMove = getBestMoveUsingMinMax(parent);
                 } 
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
@@ -426,41 +424,6 @@ class AI1 {
         defaultHScore[6][0] = PRECORNER_SCORE;
 
         printSquareValues(defaultHScore);
-    }
-
-    private int getOneOfBestMovesUsingMinMax(RNode parent){ // Only can factor in moves that it chooses on minMax updates
-        Map<Double, Integer> scoreMoveMap = new HashMap<>();
-        
-        for (RNode child: parent.getChildren()) {
-            scoreMoveMap.put(child.getNetScore(), child.getMove());
-        }
-
-        //sort the scores, find the total weight over the N highest values
-        SortedSet<Double> scoreKeys = new TreeSet<>(scoreMoveMap.keySet()).descendingSet();
-        int scoreIncrement = 0;
-        double totalWeight = 0.0;
-        for (double key : scoreKeys) { 
-            totalWeight += key;
-            scoreIncrement+=1;
-            if(scoreIncrement > RANDOM_CHOICE_NUM){
-                break;
-            }
-        }
-
-        // get the weighted random value, return the position.
-        double randVal = Math.random() * totalWeight * (1-RANDOM_CHOICE_WEIGHT);
-        double bestScore = scoreKeys.iterator().next();
-        int chosenMove = scoreMoveMap.get(bestScore);
-        for(double key: scoreKeys){
-            if(key > randVal){
-                debugPrintln("RANDOMLY PICKED POS: " + scoreMoveMap.get(key) + " WITH WEIGHT: " + key);
-                debugPrintln("MOST PROBABLE: " + scoreMoveMap.get(bestScore) + " WITH WEIGHT: " + bestScore);
-                chosenMove = scoreMoveMap.get(key);
-                break;
-            }
-            randVal -= key;
-        }
-        return chosenMove;
     }
 
 
