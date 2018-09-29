@@ -28,11 +28,12 @@ class AI1 {
     final int MAX_DEPTH;
     final boolean shouldDebug = false;
 
-    final double CORNER_SCORE = 40;
-    final double PRECORNER_SCORE = -20;
+    final double CORNER_SCORE = 75;
+    final double PRECORNER_SCORE = -25;
     final double EDGE_SCORE = 3;
-    final double NORMAL_SCORE = 0.4;
-    final double SAFE_SPACE_WEIGHT = 20;
+    final double NORMAL_SCORE = 0.8;
+    final double SAFE_SPACE_WEIGHT = 15;
+    final double EXTINCTION_WEIGHT = 40;
     
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
@@ -112,11 +113,11 @@ class AI1 {
 
         if (count.getMyCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("AVOID THIS MOVE");
-            moveScore -= 30; // * (parent.getDepth() / MAX_DEPTH);
+            moveScore -= EXTINCTION_WEIGHT; // * (parent.getDepth() / MAX_DEPTH);
         } 
         if (count.getOpponentCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("SEIZE THIS MOVE");
-            moveScore += 30; // * (parent.getDepth() / MAX_DEPTH);
+            moveScore += EXTINCTION_WEIGHT; // * (parent.getDepth() / MAX_DEPTH);
         }
         
         // safe spaces
