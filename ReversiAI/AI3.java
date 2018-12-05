@@ -31,6 +31,7 @@ class AI3 {
     double positionWeights[][] = new double[8][8];
     final int ORIGINAL_MAX_DEPTH;
     final int MAX_TOKENS = 64;
+    final int LATE_GAME_TOKEN_COUNT = 40;
     final boolean shouldDebug = false;
 
     final double CORNER_SCORE = 75;
@@ -66,6 +67,7 @@ class AI3 {
                     chosenMove = moves.get((int) (Math.random() * moves.size()));
                 } else {
                     RNode parent = new RNode(null, 0, 0.0, me, -1, 0);
+                    stateTokenCount = PieceCount.countPiecesFromState(state);
                     if (stateTokenCount.getTotalPieceCount() == 60) {
                         printPositionWeightsForState();
                     }
@@ -83,7 +85,7 @@ class AI3 {
     }
 
     public void buildChildNodes(RNode node, int[][] currState) {
-        if(stateTokenCount.getTotalPieceCount() >= 4 && !updatedLateGameWeights){
+        if(stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights){
             initializePositionWeights();
             System.out.println("LATE GAME WEIGHTS UPDATED-----------------------------------------------------------------------------------------------------------------------------");
             updatedLateGameWeights = true;
@@ -449,7 +451,7 @@ class AI3 {
                     positionWeights[i][j] = EDGE_SCORE;
                 } else {
                     // we want to minimize getting tokens in the early game
-                    if(stateTokenCount.getTotalPieceCount() <= 4){
+                    if(stateTokenCount.getTotalPieceCount() <= LATE_GAME_TOKEN_COUNT){
                         positionWeights[i][j] = EARLY_GAME_NORMAL_SCORE;
                     }else{
                         positionWeights[i][j] = LATE_GAME_NORMAL_SCORE;
