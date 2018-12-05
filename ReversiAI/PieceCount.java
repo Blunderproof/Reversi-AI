@@ -39,6 +39,10 @@ public class PieceCount {
       return secondPlayerCount;
     }
 
+    public int getTotalPieceCount() {
+      return firstPlayerCount + secondPlayerCount;
+    }
+
     public static PieceCount countPiecesFromState(int[][] state) {
       int firstPlayerCount = 0;
       int secondPlayerCount = 0;
