@@ -25,7 +25,7 @@ class AI1 {
     int numValidMoves;
 
     double positionWeights[][] = new double[8][8];
-    final int MAX_DEPTH;
+    final int ORIGINAL_MAX_DEPTH;
     final boolean shouldDebug = false;
 
     final double CORNER_SCORE = 75;
@@ -34,11 +34,12 @@ class AI1 {
     final double NORMAL_SCORE = 0.8;
     final double SAFE_SPACE_WEIGHT = 15;
     final double EXTINCTION_WEIGHT = 40;
+    final double CORNER_TWO_IN_SCORE = 2;
     
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
     public AI1(int _me, String host, int maxDepth) {
-        MAX_DEPTH = maxDepth;
+        ORIGINAL_MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
@@ -113,11 +114,11 @@ class AI1 {
 
         if (count.getMyCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("AVOID THIS MOVE");
-            moveScore -= EXTINCTION_WEIGHT; // * (parent.getDepth() / MAX_DEPTH);
+            moveScore -= EXTINCTION_WEIGHT; // * (parent.getDepth() / ORIGINAL_MAX_DEPTH);
         } 
         if (count.getOpponentCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("SEIZE THIS MOVE");
-            moveScore += EXTINCTION_WEIGHT; // * (parent.getDepth() / MAX_DEPTH);
+            moveScore += EXTINCTION_WEIGHT; // * (parent.getDepth() / ORIGINAL_MAX_DEPTH);
         }
         
         // safe spaces
@@ -133,7 +134,12 @@ class AI1 {
 
         RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move, safe);
 
-        if (newChildNode.getDepth() < MAX_DEPTH) {
+        int currentMaxDepth = ORIGINAL_MAX_DEPTH;
+        if (count.getTotalPieceCount() >= 50){
+            currentMaxDepth += 5;
+        }
+
+        if (newChildNode.getDepth() < ORIGINAL_MAX_DEPTH) {
             // build another layer of children
             buildChildNodes(newChildNode, childState);
         }
@@ -209,6 +215,8 @@ class AI1 {
         return score; 
     }
 
+    // Towards the end game, we want to maximize guaranteed safe positions, 
+    // if the move gives us new ones then we want to favor those moves.
     private int countSafePositions(int [][]currState, int player){
         HashSet<String> safePositions = new HashSet<>(); 
 
@@ -386,9 +394,6 @@ class AI1 {
         return safePositions.size();
     }
 
-
-
-    // create hScores
     private void initializePositionWeights() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -419,6 +424,11 @@ class AI1 {
         positionWeights[7][1] = PRECORNER_SCORE;
         positionWeights[6][0] = PRECORNER_SCORE;
 
+        positionWeights[2][2] = CORNER_TWO_IN_SCORE;
+        positionWeights[5][5] = CORNER_TWO_IN_SCORE;
+        positionWeights[2][5] = CORNER_TWO_IN_SCORE;
+        positionWeights[5][2] = CORNER_TWO_IN_SCORE;
+
         printPositionWeights(positionWeights);
     }
 
@@ -441,7 +451,7 @@ class AI1 {
 
     private double getScoreOfBestChild(RNode node, double bestScoreSoFar) {
         // base case
-        if (node.getDepth() == MAX_DEPTH + 1 || node.getChildren().size() == 0) {
+        if (node.getDepth() == ORIGINAL_MAX_DEPTH + 1 || node.getChildren().size() == 0) {
             return node.getNetScore();
         }
         
