@@ -110,9 +110,9 @@ class AI2 {
                 moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
-        double currentPositionWeights[][] = getPositionWeightForBoard(positionWeights, childState);
+        //double currentPositionWeights[][] = getPositionWeightForBoard(positionWeights, childState);
         // add the current location
-        moveScore += currentPositionWeights[row][col];
+        moveScore += positionWeights[row][col];
 
         // actually place the token
         childState[row][col] = parent.getPlayer();
@@ -137,11 +137,11 @@ class AI2 {
             int pieceDiff = count.getMyCountForPlayer(parent.getPlayer()) - count.getOpponentCountForPlayer(parent.getPlayer());
             if (pieceDiff > 0) {
                 // we will win
-                System.out.println("WINNING OUTCOME");
+                debugPrintln("WINNING OUTCOME");
                 moveScore += WINNING_OUTCOME_WEIGHT;
             } else if (pieceDiff < 0) {
                 // we will lose
-                System.out.println("LOSING OUTCOME");
+                debugPrintln("LOSING OUTCOME");
                 moveScore -= WINNING_OUTCOME_WEIGHT;
             } else {
                 // tie... not sure what to do here. weight it slightly because better than losing?
@@ -168,8 +168,17 @@ class AI2 {
         //     int additionalDepth = (int) Math.round((count.getTotalPieceCount() - 50) / 2);
         //     currentMaxDepth += additionalDepth;
         // }
-        if(count.getTotalPieceCount() >= 50){
-            currentMaxDepth = 10;
+        if(stateTokenCount.getTotalPieceCount() >= 45){
+            currentMaxDepth = 7;
+        }
+        if(stateTokenCount.getTotalPieceCount() >= 48){
+            currentMaxDepth = 8;
+        }
+        if(stateTokenCount.getTotalPieceCount() >= 51){
+            currentMaxDepth = 9;
+        }
+        if(stateTokenCount.getTotalPieceCount() >= 52){
+            currentMaxDepth = 12;
         }
 
         if (newChildNode.getDepth() < currentMaxDepth) {
