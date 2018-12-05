@@ -721,16 +721,30 @@ class AI2 {
 
     private double getPositionWeightForState(int[][] currState, int row, int col) {
         if ((row == 0 || row == 7) && (col == 0 || col == 7)) {
-            // corner
+            // return corner value early so we can do less checks later
             return positionWeights[row][col];
         }
+
+        // from
+        // 0 0 0
+        // 0 2 0
+        // 0 0 1
+        
+        // to
+        // 1 0 0
+        // 0 1 0
+        // 0 0 1
+        
+        // flipping the sign of the 3 spots around the corner if the corner is taken
         if (row <= 1) {
             if (col <= 1) {
+                // top left
                 // (0,1), (1,0), (1,1)
                 if (currState[0][0] != 0) {
                     return positionWeights[row][col] * -1;
                 }
             } else if (col >= 6) {
+                // top right
                 // (0,6), (1,6), (1,7)
                 if (currState[0][7] != 0) {
                     return positionWeights[row][col] * -1;
@@ -738,18 +752,21 @@ class AI2 {
             }
         } else if (row >= 6) {
             if (col <= 1) {
+                // bottom left
                 // (7,1), (6,0), (6,1)
                 if (currState[7][0] != 0) {
                     return positionWeights[row][col] * -1;
                 }
             } else if (col >= 6) {
+                // bottom right
                 // (7,6), (6,6), (6,7)
-                if (currState[7][0] != 0) {
+                if (currState[7][7] != 0) {
                     return positionWeights[row][col] * -1;
                 }
             }
         }
 
+        // return the normal value
         return positionWeights[row][col];
     }
 
