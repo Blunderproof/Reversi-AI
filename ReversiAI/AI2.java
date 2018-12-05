@@ -171,19 +171,20 @@ class AI2 {
         int currentMaxDepth = ORIGINAL_MAX_DEPTH;
 
         // if (count.getTotalPieceCount() >= 50){
-        // int additionalDepth = (int) Math.round((count.getTotalPieceCount() - 50) / 2);
+        // int additionalDepth = (int) Math.round((count.getTotalPieceCount() - 50) /
+        // 2);
         // currentMaxDepth += additionalDepth;
         // }
-        if(stateTokenCount.getTotalPieceCount() >= 45){
+        if (stateTokenCount.getTotalPieceCount() >= 45) {
             currentMaxDepth = 7;
         }
-        if(stateTokenCount.getTotalPieceCount() >= 48){
+        if (stateTokenCount.getTotalPieceCount() >= 48) {
             currentMaxDepth = 8;
         }
-        if(stateTokenCount.getTotalPieceCount() >= 51){
+        if (stateTokenCount.getTotalPieceCount() >= 51) {
             currentMaxDepth = 9;
         }
-        if(stateTokenCount.getTotalPieceCount() >= 52){
+        if (stateTokenCount.getTotalPieceCount() >= 52) {
             currentMaxDepth = 12;
         }
 
