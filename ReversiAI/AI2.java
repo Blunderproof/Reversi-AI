@@ -38,7 +38,7 @@ class AI2 {
     final double EDGE_SCORE = 3;
     final double NORMAL_SCORE = 0.8;
     final double SAFE_SPACE_WEIGHT = 15;
-    final double NEW_COMPLETE_EDGE_WEIGHT = 30;
+    final double NEW_COMPLETE_EDGE_WEIGHT = 15;
     final double EXTINCTION_WEIGHT = 40;
     final double CORNER_TWO_IN_SCORE = 2;
 
@@ -156,8 +156,8 @@ class AI2 {
         moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT;
 
         // capture entire edges
-        int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
-        moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
+        // int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
+        // moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
 
         debugPrintln(moveToString(move) + ": " + moveScore);
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
