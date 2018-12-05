@@ -18,7 +18,10 @@ class AI2 {
     double t1, t2;
     int me;
     int boardState;
+    
     int state[][] = new int[8][8]; // state[0][0] is the bottom left corner of the board (on the GUI)
+    PieceCount stateTokenCount;
+
     int turn = -1;
     int round;
 
@@ -31,6 +34,7 @@ class AI2 {
 
     final double CORNER_SCORE = 75;
     final double PRECORNER_SCORE = -25;
+    final double EDGE_TWO_IN_SCORE = 6;
     final double EDGE_SCORE = 3;
     final double NORMAL_SCORE = 0.8;
     final double SAFE_SPACE_WEIGHT = 15;
@@ -61,6 +65,7 @@ class AI2 {
                     chosenMove = moves.get( (int)(Math.random() * moves.size()) );
                 } else {
                     RNode parent = new RNode(null, 0, 0.0, me, -1, 0);
+                    stateTokenCount = PieceCount.countPiecesFromState(state);
                     buildChildNodes(parent, state);
     
                     // minimax and alpha beta happen in here
@@ -105,9 +110,12 @@ class AI2 {
                 moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
             }
         }
-        childState[row][col] = parent.getPlayer();
+        double currentPositionWeights[][] = getPositionWeightForBoard(positionWeights, childState);
         // add the current location
-        moveScore += positionWeights[row][col];
+        moveScore += currentPositionWeights[row][col];
+
+        // actually place the token
+        childState[row][col] = parent.getPlayer();
 
         // token counts
         PieceCount count = PieceCount.countPiecesFromState(childState);
@@ -433,6 +441,7 @@ class AI2 {
         positionWeights[1][1] = PRECORNER_SCORE;
         positionWeights[0][1] = PRECORNER_SCORE;
         positionWeights[1][0] = PRECORNER_SCORE;
+
         positionWeights[6][6] = PRECORNER_SCORE;
         positionWeights[7][6] = PRECORNER_SCORE;
         positionWeights[6][7] = PRECORNER_SCORE;
@@ -440,9 +449,19 @@ class AI2 {
         positionWeights[1][6] = PRECORNER_SCORE;
         positionWeights[0][6] = PRECORNER_SCORE;
         positionWeights[1][7] = PRECORNER_SCORE;
+
         positionWeights[6][1] = PRECORNER_SCORE;
         positionWeights[7][1] = PRECORNER_SCORE;
         positionWeights[6][0] = PRECORNER_SCORE;
+
+        positionWeights[0][2] = EDGE_TWO_IN_SCORE;
+        positionWeights[0][5] = EDGE_TWO_IN_SCORE;
+        positionWeights[2][0] = EDGE_TWO_IN_SCORE;
+        positionWeights[2][7] = EDGE_TWO_IN_SCORE;
+        positionWeights[5][0] = EDGE_TWO_IN_SCORE;
+        positionWeights[5][7] = EDGE_TWO_IN_SCORE;
+        positionWeights[7][2] = EDGE_TWO_IN_SCORE;
+        positionWeights[7][5] = EDGE_TWO_IN_SCORE;
 
         positionWeights[2][2] = CORNER_TWO_IN_SCORE;
         positionWeights[5][5] = CORNER_TWO_IN_SCORE;
