@@ -55,7 +55,6 @@ class AI2 {
             readMessage();
 
             if (turn == me) {
-
                 int chosenMove;
                 if (round < 4) {
                     // randomize
@@ -729,12 +728,12 @@ class AI2 {
         // 0 0 0
         // 0 2 0
         // 0 0 1
-        
+
         // to
         // 1 0 0
         // 0 1 0
         // 0 0 1
-        
+
         // flipping the sign of the 3 spots around the corner if the corner is taken
         if (row <= 1) {
             if (col <= 1) {
