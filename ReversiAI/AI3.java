@@ -85,9 +85,10 @@ class AI3 {
     }
 
     public void buildChildNodes(RNode node, int[][] currState) {
-        if(stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights){
+        if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights) {
             initializePositionWeights();
-            System.out.println("LATE GAME WEIGHTS UPDATED-----------------------------------------------------------------------------------------------------------------------------");
+            System.out.println(
+                    "LATE GAME WEIGHTS UPDATED-----------------------------------------------------------------------------------------------------------------------------");
             updatedLateGameWeights = true;
         }
 
@@ -451,10 +452,10 @@ class AI3 {
                     positionWeights[i][j] = EDGE_SCORE;
                 } else {
                     // we want to minimize getting tokens in the early game
-                    if(stateTokenCount.getTotalPieceCount() <= LATE_GAME_TOKEN_COUNT){
-                        positionWeights[i][j] = EARLY_GAME_NORMAL_SCORE;
-                    }else{
+                    if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT) {
                         positionWeights[i][j] = LATE_GAME_NORMAL_SCORE;
+                    } else {
+                        positionWeights[i][j] = EARLY_GAME_NORMAL_SCORE;
                     }
 
                 }
@@ -741,12 +742,12 @@ class AI3 {
         // 0 0 0
         // 0 2 0
         // 0 0 1
-        
+
         // to
         // 1 0 0
         // 0 1 0
         // 0 0 1
-        
+
         // flipping the sign of the 3 spots around the corner if the corner is taken
         if (row <= 1) {
             if (col <= 1) {
