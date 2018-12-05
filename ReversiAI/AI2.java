@@ -170,11 +170,7 @@ class AI2 {
 
         int currentMaxDepth = ORIGINAL_MAX_DEPTH;
 
-        // if (count.getTotalPieceCount() >= 50){
-        // int additionalDepth = (int) Math.round((count.getTotalPieceCount() - 50) /
-        // 2);
-        // currentMaxDepth += additionalDepth;
-        // }
+        // tweak the currentMaxDepth in the end game
         if (stateTokenCount.getTotalPieceCount() >= 45) {
             currentMaxDepth = 7;
         }
