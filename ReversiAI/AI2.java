@@ -163,11 +163,16 @@ class AI2 {
         RNode newChildNode = new RNode(parent, parent.getDepth() + 1, childScore, childPlayer, move, safe);
 
         int currentMaxDepth = ORIGINAL_MAX_DEPTH;
-        if (count.getTotalPieceCount() >= 50){
-            currentMaxDepth += 5;
+
+        // if (count.getTotalPieceCount() >= 50){
+        //     int additionalDepth = (int) Math.round((count.getTotalPieceCount() - 50) / 2);
+        //     currentMaxDepth += additionalDepth;
+        // }
+        if(count.getTotalPieceCount() >= 50){
+            currentMaxDepth = 10;
         }
 
-        if (newChildNode.getDepth() < ORIGINAL_MAX_DEPTH) {
+        if (newChildNode.getDepth() < currentMaxDepth) {
             // build another layer of children
             buildChildNodes(newChildNode, childState);
         }
