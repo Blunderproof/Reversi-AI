@@ -43,7 +43,7 @@ class MyCanvas extends JComponent {
         repaint();
         try
         {
-            Thread.sleep(3 * 1000);
+            Thread.sleep(10 * 1000);
         }
         catch(InterruptedException ex)
         {
