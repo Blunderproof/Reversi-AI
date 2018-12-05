@@ -94,28 +94,28 @@ class AI2 {
 
     public RNode buildChildNodeFromMove(RNode parent, int move, int[][] parentState) {
         int[][] childState = deepCopyState(parentState);
-        int row = move / 8;
-        int col = move % 8;
+        int moveRow = move / 8;
+        int moveCol = move % 8;
 
         int childPlayer = getChildPlayerFromPlayerAndDepth(parent.getPlayer(), parent.getDepth());
 
         int incx, incy;
+        
         double moveScore = 0;
+        // add the current location's weight
+        moveScore += getPositionWeightForState(childState, moveRow, moveCol);
+
+        // actually place the token
+        childState[moveRow][moveCol] = parent.getPlayer();
         for (incx = -1; incx < 2; incx++) {
             for (incy = -1; incy < 2; incy++) {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
                 // updated multiple times as the update can be from 1+ directions
-                moveScore += updateStateAndCalculateScore(childState, row, col, incx, incy, parent.getPlayer()); 
+                moveScore += updateStateAndCalculateScore(childState, moveRow, moveCol, incx, incy, parent.getPlayer()); 
             }
         }
-        double currentPositionWeights[][] = getPositionWeightForBoard(positionWeights, childState);
-        // add the current location
-        moveScore += currentPositionWeights[row][col];
-
-        // actually place the token
-        childState[row][col] = parent.getPlayer();
 
         // token counts
         PieceCount count = PieceCount.countPiecesFromState(childState);
