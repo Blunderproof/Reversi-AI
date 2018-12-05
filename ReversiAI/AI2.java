@@ -184,8 +184,8 @@ class AI2 {
         if (stateTokenCount.getTotalPieceCount() >= 51) {
             currentMaxDepth = 9;
         }
-        if (stateTokenCount.getTotalPieceCount() >= 52) {
-            currentMaxDepth = 12;
+        if (stateTokenCount.getTotalPieceCount() >= 53) {
+            currentMaxDepth = 11;
         }
 
         if (newChildNode.getDepth() < currentMaxDepth) {
