@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class AI1 {
+class AI2 {
 
     public Socket s;
     public BufferedReader sin;
@@ -26,6 +26,7 @@ class AI1 {
 
     double positionWeights[][] = new double[8][8];
     final int ORIGINAL_MAX_DEPTH;
+    final int MAX_TOKENS = 64;
     final boolean shouldDebug = false;
 
     final double CORNER_SCORE = 75;
@@ -35,10 +36,11 @@ class AI1 {
     final double SAFE_SPACE_WEIGHT = 15;
     final double EXTINCTION_WEIGHT = 40;
     final double CORNER_TWO_IN_SCORE = 2;
-    
+
+    final double WINNING_OUTCOME_WEIGHT = 10000;  
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
-    public AI1(int _me, String host, int maxDepth) {
+    public AI2(int _me, String host, int maxDepth) {
         ORIGINAL_MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
@@ -119,6 +121,24 @@ class AI1 {
         if (count.getOpponentCountForPlayer(parent.getPlayer()) < DANGER_ZONE_TOKEN_COUNT) {
             debugPrintln("SEIZE THIS MOVE");
             moveScore += EXTINCTION_WEIGHT; // * (parent.getDepth() / ORIGINAL_MAX_DEPTH);
+        }
+
+        // end of game weights
+        if (count.getTotalPieceCount() == MAX_TOKENS) {
+            // game would be over
+            int pieceDiff = count.getMyCountForPlayer(parent.getPlayer()) - count.getOpponentCountForPlayer(parent.getPlayer());
+            if (pieceDiff > 0) {
+                // we will win
+                System.out.println("WINNING OUTCOME");
+                moveScore += WINNING_OUTCOME_WEIGHT;
+            } else if (pieceDiff < 0) {
+                // we will lose
+                System.out.println("LOSING OUTCOME");
+                moveScore -= WINNING_OUTCOME_WEIGHT;
+            } else {
+                // tie... not sure what to do here. weight it slightly because better than losing?
+                // but isn't just not weighting it doing the same thing?
+            }
         }
         
         // safe spaces
@@ -746,7 +766,7 @@ class AI1 {
         if (args.length >= 3 ) {
             maxDepth = Integer.parseInt(args[2]);
         }
-        new AI1(Integer.parseInt(args[1]), args[0], maxDepth);
+        new AI2(Integer.parseInt(args[1]), args[0], maxDepth);
     }
 
 }
