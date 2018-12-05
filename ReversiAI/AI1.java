@@ -45,12 +45,9 @@ class AI1 {
         initializePositionWeights();
 
         while (true) {
-            System.out.println("Read");
             readMessage();
 
             if (turn == me) {
-                System.out.println("\n\n\n\nStarting Move");
-
                 int chosenMove;
                 if (round < 4) {
                     // randomize
@@ -66,8 +63,6 @@ class AI1 {
 
                 String sel = chosenMove / 8 + "\n" + chosenMove % 8;
 
-                System.out.println("Selection: " + moveToString(chosenMove) + "\n\n");
-
                 sout.println(sel);
             }
         }
@@ -75,7 +70,6 @@ class AI1 {
 
     public void buildChildNodes(RNode node, int[][] currState) {
         debugPrintln("Parent move: " + moveToString(node.getMove()) + " and depth: " + node.getDepth() + " and player: " + node.getPlayer());
-        printState(currState);
         List<Integer> currValidMoves = getCurrValidMoves(round + node.getDepth(), currState, node.getPlayer());
 
         debugPrintln("\n\nPossible Moves for player: " + node.getPlayer());
@@ -125,7 +119,6 @@ class AI1 {
         moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT; 
         
         debugPrintln( moveToString(move) + ": " + moveScore );
-        printState(childState);
 
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer()); 
 
@@ -579,7 +572,6 @@ class AI1 {
         int i, j;
         String status;
         try {
-            // System.out.println("Ready to read again");
             turn = Integer.parseInt(sin.readLine());
 
             if (turn == -999) {
@@ -595,9 +587,7 @@ class AI1 {
             // System.out.println("Turn: " + turn);
             round = Integer.parseInt(sin.readLine());
             t1 = Double.parseDouble(sin.readLine());
-            System.out.println(t1);
             t2 = Double.parseDouble(sin.readLine());
-            System.out.println(t2);
             for (i = 0; i < 8; i++) {
                 for (j = 0; j < 8; j++) {
                     state[i][j] = Integer.parseInt(sin.readLine());
@@ -610,7 +600,6 @@ class AI1 {
                         positionWeights[Math.abs(row - 1)][col] = PRECORNER_SCORE * -1;
                         positionWeights[row][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
                         positionWeights[Math.abs(row - 1)][Math.abs(col - 1)] = PRECORNER_SCORE * -1;
-                        printPositionWeights(positionWeights);
                     }
                 }
             }
@@ -618,11 +607,6 @@ class AI1 {
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }
-
-        System.out.println("Turn: " + turn);
-        System.out.println("Round: " + round);
-        printState(state);
-        System.out.println();
     }
 
     // Already implemented, don't touch
@@ -635,7 +619,6 @@ class AI1 {
             sin = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
             String info = sin.readLine();
-            System.out.println(info);
         } catch (IOException e) {
             System.err.println("Caught IOException: " + e.getMessage());
         }

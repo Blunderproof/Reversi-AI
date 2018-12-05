@@ -5,7 +5,7 @@ javac ReversiServer/*.java
 javac ReversiAI/*.java
 
 # RUN
-java -cp "ReversiServer/" Reversi 60 &
+java -cp "ReversiServer/" Reversi 3 &
 sleep 4
 java -cp "ReversiAI/" AI2 127.0.0.1 1 6 & 
 sleep 1
