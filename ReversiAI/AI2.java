@@ -38,6 +38,7 @@ class AI2 {
     final double EDGE_SCORE = 3;
     final double NORMAL_SCORE = 0.8;
     final double SAFE_SPACE_WEIGHT = 15;
+    final double NEW_COMPLETE_EDGE_WEIGHT = 30;
     final double EXTINCTION_WEIGHT = 40;
     final double CORNER_TWO_IN_SCORE = 2;
 
@@ -110,6 +111,7 @@ class AI2 {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
+                // this actually flips the tokens that a given move would take
                 // updated multiple times as the update can be from 1+ directions
                 moveScore += updateStateAndCalculateScore(childState, moveRow, moveCol, incx, incy, parent.getPlayer());
             }
@@ -153,9 +155,11 @@ class AI2 {
         int safe = countSafePositions(childState, parent.getPlayer());
         moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT;
 
-        debugPrintln(moveToString(move) + ": " + moveScore);
-        printState(childState);
+        // capture entire edges
+        int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
+        moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
 
+        debugPrintln(moveToString(move) + ": " + moveScore);
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
 
         debugPrintln("Parent player: " + parent.getPlayer() + " Child Player: " + childPlayer);
@@ -252,6 +256,58 @@ class AI2 {
             }
         }
         return score;
+    }
+
+    private boolean completeEdge(int[][] state, int player, int rowStart, int colStart, int dRow, int dCol) {
+        boolean haveSeenOurToken = false;
+        boolean ourTokenLineEnded = false;
+        for (int i = 0; i < 8; i++) {
+            int tokenAtLocation = state[rowStart + i * dRow][colStart + i * dCol];
+            if (tokenAtLocation != 0 && tokenAtLocation != player) {
+                // the second we see an enemy, end it
+                return false;
+            }
+            if (haveSeenOurToken) {
+                if (tokenAtLocation == 0) {
+                    // had a line, now see 0
+                    ourTokenLineEnded = true;
+                } else {
+                    if (ourTokenLineEnded) {
+                        // we had a consecutive line, then saw a 0, now we see our token again
+                        return false;
+                    }
+                }
+            } else {
+                if (tokenAtLocation != 0) {
+                    // we've seen our team's token
+                    haveSeenOurToken = true;
+                }
+            }
+        }
+        if (!haveSeenOurToken) {
+            // empty edge
+            return false;
+        }
+        return true;
+    }
+
+    private int calculateNumberOfNewCompleteEdges(int[][] oldState, int[][] newState, int player) {
+        int count = 0;
+
+        if (completeEdge(newState, player, 0, 0, 1, 0) && !completeEdge(oldState, player, 0, 0, 1, 0)) {
+            count += 1;
+        }
+        if (completeEdge(newState, player, 0, 0, 0, 1) && !completeEdge(oldState, player, 0, 0, 0, 1)) {
+            count += 1;
+        }
+        if (completeEdge(newState, player, 7, 7, -1, 0) && !completeEdge(oldState, player, 7, 7, -1, 0)) {
+            count += 1;
+        }
+        if (completeEdge(newState, player, 7, 7, 0, -1) && !completeEdge(oldState, player, 7, 7, 0, -1)) {
+            count += 1;
+        }
+
+        return count;
     }
 
     // Towards the end game, we want to maximize guaranteed safe positions,
@@ -736,13 +792,13 @@ class AI2 {
                 // top left
                 // (0,1), (1,0), (1,1)
                 if (currState[0][0] != 0) {
-                    return positionWeights[row][col] * -1;
+                    return PRECORNER_SCORE * -1;
                 }
             } else if (col >= 6) {
                 // top right
                 // (0,6), (1,6), (1,7)
                 if (currState[0][7] != 0) {
-                    return positionWeights[row][col] * -1;
+                    return PRECORNER_SCORE * -1;
                 }
             }
         } else if (row >= 6) {
@@ -750,13 +806,13 @@ class AI2 {
                 // bottom left
                 // (7,1), (6,0), (6,1)
                 if (currState[7][0] != 0) {
-                    return positionWeights[row][col] * -1;
+                    return PRECORNER_SCORE * -1;
                 }
             } else if (col >= 6) {
                 // bottom right
                 // (7,6), (6,6), (6,7)
                 if (currState[7][7] != 0) {
-                    return positionWeights[row][col] * -1;
+                    return PRECORNER_SCORE * -1;
                 }
             }
         }
