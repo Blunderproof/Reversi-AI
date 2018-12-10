@@ -31,16 +31,16 @@ class AI3 {
     double positionWeights[][] = new double[8][8];
     final int ORIGINAL_MAX_DEPTH;
     final int MAX_TOKENS = 64;
-    final int LATE_GAME_TOKEN_COUNT = 40;
+    final int LATE_GAME_TOKEN_COUNT = 36;
     final boolean shouldDebug = false;
 
-    final double CORNER_SCORE = 75;
+    final double CORNER_SCORE = 100;
     final double PRECORNER_SCORE = -25;
     final double EDGE_TWO_IN_SCORE = 6;
     final double EDGE_SCORE = 3;
     final double EARLY_GAME_NORMAL_SCORE = -0.8;
-    final double LATE_GAME_NORMAL_SCORE = 0.8;
-    final double SAFE_SPACE_WEIGHT = 15;
+    final double LATE_GAME_NORMAL_SCORE = 0.6;
+    final double SAFE_SPACE_WEIGHT = 25;
     final double EXTINCTION_WEIGHT = 40;
     final double CORNER_TWO_IN_SCORE = 2;
 
