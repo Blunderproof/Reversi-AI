@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class AI3 {
+class AI4 {
 
     public Socket s;
     public BufferedReader sin;
@@ -48,7 +48,7 @@ class AI3 {
     final double WINNING_OUTCOME_WEIGHT = 10000;
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
-    public AI3(int _me, String host, int maxDepth) {
+    public AI4(int _me, String host, int maxDepth) {
         ORIGINAL_MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
@@ -916,7 +916,7 @@ class AI3 {
         if (args.length >= 3) {
             maxDepth = Integer.parseInt(args[2]);
         }
-        new AI3(Integer.parseInt(args[1]), args[0], maxDepth);
+        new AI4(Integer.parseInt(args[1]), args[0], maxDepth);
     }
 
 }
