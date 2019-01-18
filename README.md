@@ -13,7 +13,7 @@ AI Java program for playing Reversi, either against people or other AI agents.
 ```
 java -cp "ReversiServer/" Reversi 3 
 java -cp "ReversiHuman/" Human 127.0.0.1 2
-java -cp "ReversiAI/" AI2 127.0.0.1 1 6
+java -cp "ReversiAI/" AI_Medium 127.0.0.1 1 
 ```
 
 Windows batch files with various game settings are included for ease of use.
@@ -24,7 +24,7 @@ Windows batch files with various game settings are included for ease of use.
 
 - The "Human" program allows user input to manually test the AI and play against it. It runs with 2 mandatory parameters: `IP` and `Player Number`. 
 
-- A number of different AIs are included with differing levels of skill. Descriptions are included below. All AI program runs with 3 mandatory parameters: `IP`, `Player Number` and `depth` representing the depth to which alpha/beta pruning is executed.
+- A number of different AIs are included with differing levels of skill. Descriptions are included below. All AI program runs with 3  parameters, the last one optional: `IP`, `Player Number` and `depth` representing the depth to which alpha/beta pruning is executed. The Easy, Medium and Hard levels have default depths they'll go until.
 
 - The "Random" AI program runs 2 mandatory parameters: `IP` and `Player Number` and plays in a completely random fashion.It is included mostly for diagnostic purposes.
 
@@ -44,7 +44,7 @@ Have Java installed and click any of the bat files to run with that given specif
 ### Mac
 From the root of the directory run the following commands in terminal.
 1) java -cp "ReversiServer/" Reversi {NumberMinutesOfGame}
-2) java -cp "ReversiAI_1/" {AI_LEVEL} {IP} {PlayerNumber} {TreeDepth}
+2) java -cp "ReversiAI_1/" {AI_LEVEL} {IP} {PlayerNumber} {OPTIONAL:TreeDepth}
 3) java -cp "ReversiHuman/" Human {IP} {PlayerNumber}
 
 Note that two different human players can play together with a running server and appropriate IP addresses.
