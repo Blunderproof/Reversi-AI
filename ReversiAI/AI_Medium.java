@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class AI4 {
+class AI_Medium {
 
     public Socket s;
     public BufferedReader sin;
@@ -26,20 +26,17 @@ class AI4 {
     int round;
 
     int numValidMoves;
-    boolean updatedLateGameWeights = false;
 
     double positionWeights[][] = new double[8][8];
     final int ORIGINAL_MAX_DEPTH;
     final int MAX_TOKENS = 64;
-    final int LATE_GAME_TOKEN_COUNT = 36;
     final boolean shouldDebug = false;
 
     final double CORNER_SCORE = 75;
     final double PRECORNER_SCORE = -25;
     final double EDGE_TWO_IN_SCORE = 6;
     final double EDGE_SCORE = 3;
-    final double EARLY_GAME_NORMAL_SCORE = -0.8;
-    final double LATE_GAME_NORMAL_SCORE = 0.8;
+    final double NORMAL_SCORE = 0.8;
     final double SAFE_SPACE_WEIGHT = 15;
     final double NEW_COMPLETE_EDGE_WEIGHT = 15;
     final double EXTINCTION_WEIGHT = 40;
@@ -48,19 +45,17 @@ class AI4 {
     final double WINNING_OUTCOME_WEIGHT = 10000;
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
-    public AI4(int _me, String host, int maxDepth) {
+    public AI_Medium(int _me, String host, int maxDepth) {
         ORIGINAL_MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
 
-        stateTokenCount = PieceCount.countPiecesFromState(state);
         initializePositionWeights();
 
         while (true) {
             readMessage();
 
             if (turn == me) {
-
                 int chosenMove;
                 if (round < 4) {
                     // randomize
@@ -86,12 +81,6 @@ class AI4 {
     }
 
     public void buildChildNodes(RNode node, int[][] currState) {
-        if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights) {
-            initializePositionWeights();
-            debugPrintln("LATE GAME WEIGHTS UPDATED----------------------------------------------");
-            updatedLateGameWeights = true;
-        }
-
         debugPrintln("Parent move: " + moveToString(node.getMove()) + " and depth: " + node.getDepth() + " and player: "
                 + node.getPlayer());
         List<Integer> currValidMoves = getCurrValidMoves(round + node.getDepth(), currState, node.getPlayer());
@@ -167,12 +156,10 @@ class AI4 {
         moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT;
 
         // capture entire edges
-        int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
-        moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
+        // int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
+        // moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
 
         debugPrintln(moveToString(move) + ": " + moveScore);
-        printState(childState);
-
         double childScore = parent.getNetScore() + moveScore * addOrSubtractForPlayer(parent.getPlayer());
 
         debugPrintln("Parent player: " + parent.getPlayer() + " Child Player: " + childPlayer);
@@ -372,7 +359,7 @@ class AI4 {
 
         }
 
-        if (currState[7][0] == player) { // botton right
+        if (currState[7][0] == player) { // bottom right
             int x = 7;
             int y = 0;
             while (currState[x][y] == player) {
@@ -508,13 +495,7 @@ class AI4 {
                 if (i == 0 || i == 7 || j == 0 || j == 7) { // edges
                     positionWeights[i][j] = EDGE_SCORE;
                 } else {
-                    // we want to minimize getting tokens in the early game
-                    if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT) {
-                        positionWeights[i][j] = LATE_GAME_NORMAL_SCORE;
-                    } else {
-                        positionWeights[i][j] = EARLY_GAME_NORMAL_SCORE;
-                    }
-
+                    positionWeights[i][j] = NORMAL_SCORE;
                 }
 
             }
@@ -912,10 +893,12 @@ class AI4 {
 
     public static void main(String args[]) {
         int maxDepth = 5;
-        if (args.length >= 3) {
-            maxDepth = Integer.parseInt(args[2]);
-        }
-        new AI4(Integer.parseInt(args[1]), args[0], maxDepth);
+
+        // On medium we want to maximize the depth to 5
+        // if (args.length >= 3) {
+        //     maxDepth = Integer.parseInt(args[2]);
+        // }
+        new AI_Medium(Integer.parseInt(args[1]), args[0], maxDepth);
     }
 
 }

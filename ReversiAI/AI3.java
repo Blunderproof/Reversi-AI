@@ -9,6 +9,17 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
+// Runs Alpha-Beta Pruning with the following Hueristics:
+// 1) Board Placement
+// 2) Maximizing Safe spaces
+// 3) Aggresive finish/self-preservation checks
+
+// And the Following Optimizations:
+// 1) Dynamic Depth for A/B Pruning
+// 2)
+
+
+
 class AI3 {
 
     public Socket s;
@@ -87,8 +98,8 @@ class AI3 {
     public void buildChildNodes(RNode node, int[][] currState) {
         if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights) {
             initializePositionWeights();
-            System.out.println(
-                    "LATE GAME WEIGHTS UPDATED-----------------------------------------------------------------------------------------------------------------------------");
+            debugPrintln(
+                    "LATE GAME WEIGHTS UPDATED------------");
             updatedLateGameWeights = true;
         }
 

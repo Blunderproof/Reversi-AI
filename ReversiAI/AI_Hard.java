@@ -9,7 +9,18 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
-class AI4 {
+// Runs Alpha-Beta Pruning with the following Hueristics:
+// 1) Board Placement
+// 2) Maximizing Safe spaces
+// 3) Aggresive finish/self-preservation checks
+
+// And the Following Optimizations:
+// 1) Dynamic Depth for A/B Pruning
+// 2)
+
+
+
+class AI_Hard {
 
     public Socket s;
     public BufferedReader sin;
@@ -34,21 +45,20 @@ class AI4 {
     final int LATE_GAME_TOKEN_COUNT = 36;
     final boolean shouldDebug = false;
 
-    final double CORNER_SCORE = 75;
+    final double CORNER_SCORE = 100;
     final double PRECORNER_SCORE = -25;
     final double EDGE_TWO_IN_SCORE = 6;
     final double EDGE_SCORE = 3;
     final double EARLY_GAME_NORMAL_SCORE = -0.8;
-    final double LATE_GAME_NORMAL_SCORE = 0.8;
-    final double SAFE_SPACE_WEIGHT = 15;
-    final double NEW_COMPLETE_EDGE_WEIGHT = 15;
+    final double LATE_GAME_NORMAL_SCORE = 0.6;
+    final double SAFE_SPACE_WEIGHT = 25;
     final double EXTINCTION_WEIGHT = 40;
     final double CORNER_TWO_IN_SCORE = 2;
 
     final double WINNING_OUTCOME_WEIGHT = 10000;
     final int DANGER_ZONE_TOKEN_COUNT = 3;
 
-    public AI4(int _me, String host, int maxDepth) {
+    public AI_Hard(int _me, String host, int maxDepth) {
         ORIGINAL_MAX_DEPTH = maxDepth;
         me = _me;
         initClient(host);
@@ -88,7 +98,8 @@ class AI4 {
     public void buildChildNodes(RNode node, int[][] currState) {
         if (stateTokenCount.getTotalPieceCount() >= LATE_GAME_TOKEN_COUNT && !updatedLateGameWeights) {
             initializePositionWeights();
-            debugPrintln("LATE GAME WEIGHTS UPDATED----------------------------------------------");
+            debugPrintln(
+                    "LATE GAME WEIGHTS UPDATED------------");
             updatedLateGameWeights = true;
         }
 
@@ -122,7 +133,6 @@ class AI4 {
                 if ((incx == 0) && (incy == 0))
                     continue;
 
-                // this actually flips the tokens that a given move would take
                 // updated multiple times as the update can be from 1+ directions
                 moveScore += updateStateAndCalculateScore(childState, moveRow, moveCol, incx, incy, parent.getPlayer());
             }
@@ -165,10 +175,6 @@ class AI4 {
         // safe spaces
         int safe = countSafePositions(childState, parent.getPlayer());
         moveScore += (double) (safe - parent.getSafeCount()) * SAFE_SPACE_WEIGHT;
-
-        // capture entire edges
-        int newCompleteEdges = calculateNumberOfNewCompleteEdges(parentState, childState, parent.getPlayer());
-        moveScore += (double) (newCompleteEdges) * NEW_COMPLETE_EDGE_WEIGHT;
 
         debugPrintln(moveToString(move) + ": " + moveScore);
         printState(childState);
@@ -269,58 +275,6 @@ class AI4 {
             }
         }
         return score;
-    }
-
-    private boolean completeEdge(int[][] state, int player, int rowStart, int colStart, int dRow, int dCol) {
-        boolean haveSeenOurToken = false;
-        boolean ourTokenLineEnded = false;
-        for (int i = 0; i < 8; i++) {
-            int tokenAtLocation = state[rowStart + i * dRow][colStart + i * dCol];
-            if (tokenAtLocation != 0 && tokenAtLocation != player) {
-                // the second we see an enemy, end it
-                return false;
-            }
-            if (haveSeenOurToken) {
-                if (tokenAtLocation == 0) {
-                    // had a line, now see 0
-                    ourTokenLineEnded = true;
-                } else {
-                    if (ourTokenLineEnded) {
-                        // we had a consecutive line, then saw a 0, now we see our token again
-                        return false;
-                    }
-                }
-            } else {
-                if (tokenAtLocation != 0) {
-                    // we've seen our team's token
-                    haveSeenOurToken = true;
-                }
-            }
-        }
-        if (!haveSeenOurToken) {
-            // empty edge
-            return false;
-        }
-        return true;
-    }
-
-    private int calculateNumberOfNewCompleteEdges(int[][] oldState, int[][] newState, int player) {
-        int count = 0;
-
-        if (completeEdge(newState, player, 0, 0, 1, 0) && !completeEdge(oldState, player, 0, 0, 1, 0)) {
-            count += 1;
-        }
-        if (completeEdge(newState, player, 0, 0, 0, 1) && !completeEdge(oldState, player, 0, 0, 0, 1)) {
-            count += 1;
-        }
-        if (completeEdge(newState, player, 7, 7, -1, 0) && !completeEdge(oldState, player, 7, 7, -1, 0)) {
-            count += 1;
-        }
-        if (completeEdge(newState, player, 7, 7, 0, -1) && !completeEdge(oldState, player, 7, 7, 0, -1)) {
-            count += 1;
-        }
-
-        return count;
     }
 
     // Towards the end game, we want to maximize guaranteed safe positions,
@@ -811,13 +765,13 @@ class AI4 {
                 // top left
                 // (0,1), (1,0), (1,1)
                 if (currState[0][0] != 0) {
-                    return PRECORNER_SCORE * -1;
+                    return positionWeights[row][col] * -1;
                 }
             } else if (col >= 6) {
                 // top right
                 // (0,6), (1,6), (1,7)
                 if (currState[0][7] != 0) {
-                    return PRECORNER_SCORE * -1;
+                    return positionWeights[row][col] * -1;
                 }
             }
         } else if (row >= 6) {
@@ -825,13 +779,13 @@ class AI4 {
                 // bottom left
                 // (7,1), (6,0), (6,1)
                 if (currState[7][0] != 0) {
-                    return PRECORNER_SCORE * -1;
+                    return positionWeights[row][col] * -1;
                 }
             } else if (col >= 6) {
                 // bottom right
                 // (7,6), (6,6), (6,7)
                 if (currState[7][7] != 0) {
-                    return PRECORNER_SCORE * -1;
+                    return positionWeights[row][col] * -1;
                 }
             }
         }
@@ -911,11 +865,13 @@ class AI4 {
     }
 
     public static void main(String args[]) {
-        int maxDepth = 5;
+        int maxDepth = 6;
+        
+        // On hard we want a default of 6 but can be customized...
         if (args.length >= 3) {
             maxDepth = Integer.parseInt(args[2]);
         }
-        new AI4(Integer.parseInt(args[1]), args[0], maxDepth);
+        new AI_Hard(Integer.parseInt(args[1]), args[0], maxDepth);
     }
 
 }

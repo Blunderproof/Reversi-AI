@@ -359,7 +359,7 @@ class AI2 {
 
         }
 
-        if (currState[7][0] == player) { // botton right
+        if (currState[7][0] == player) { // bottom right
             int x = 7;
             int y = 0;
             while (currState[x][y] == player) {

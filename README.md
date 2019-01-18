@@ -37,11 +37,11 @@ Windows batch files with various game settings are included for ease of use.
 - The tree depth variable will quickly encounter memory constrainsts at a depth of 7 or more. A higher number leads to a stronger AI.
 
 
-## Windows
+### Windows
 
 Have Java installed and click any of the bat files to run with that given specification.
 
-## Mac
+### Mac
 From the root of the directory run the following commands in terminal.
 1) java -cp "ReversiServer/" Reversi {NumberMinutesOfGame}
 2) java -cp "ReversiAI_1/" {AI_LEVEL} {IP} {PlayerNumber} {TreeDepth}

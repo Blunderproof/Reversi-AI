@@ -9,6 +9,10 @@ import javax.swing.*;
 import java.math.*;
 import java.text.*;
 
+// Runs Alpha-Beta Pruning with the following Hueristics:
+// 1) Board Placement
+// 2) Maximizing Safe spaces
+
 class AI1 {
 
     public Socket s;
@@ -43,7 +47,6 @@ class AI1 {
         initClient(host);
 
         initializePositionWeights();
-
         while (true) {
             readMessage();
 
